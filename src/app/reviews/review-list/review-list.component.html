@@ -1,0 +1,79 @@
+<div class="review-list-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading reviews...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h3>Unable to Load Reviews</h3>
+    <p>There was a problem loading the reviews. Please try again.</p>
+    <button mat-raised-button color="primary" (click)="retryLoad()">
+      <mat-icon>refresh</mat-icon>
+      Retry
+    </button>
+  </div>
+
+  <!-- Reviews Content -->
+  <div *ngIf="!loading && !error">
+    <!-- Filters -->
+    <div class="filters-section" *ngIf="showFilters && reviews.length > 0">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Filter by Rating</mat-label>
+        <mat-select [(ngModel)]="selectedRating" (selectionChange)="onRatingChange()">
+          <mat-option value="all">All Ratings</mat-option>
+          <mat-option value="5">5 Stars</mat-option>
+          <mat-option value="4">4 Stars</mat-option>
+          <mat-option value="3">3 Stars</mat-option>
+          <mat-option value="2">2 Stars</mat-option>
+          <mat-option value="1">1 Star</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Sort By</mat-label>
+        <mat-select [(ngModel)]="selectedSort" (selectionChange)="onSortChange()">
+          <mat-option value="date-desc">Newest First</mat-option>
+          <mat-option value="date-asc">Oldest First</mat-option>
+          <mat-option value="rating-desc">Highest Rating</mat-option>
+          <mat-option value="rating-asc">Lowest Rating</mat-option>
+          <mat-option value="helpful">Most Helpful</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="results-count">
+        <mat-icon>reviews</mat-icon>
+        <span>{{ filteredReviews.length }} {{ filteredReviews.length === 1 ? 'review' : 'reviews' }}</span>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="reviews.length === 0" class="empty-state">
+      <mat-icon class="empty-icon">rate_review</mat-icon>
+      <h3>No Reviews Yet</h3>
+      <p>Be the first to share your experience!</p>
+    </div>
+
+    <!-- Review Cards -->
+    <div class="reviews-grid" *ngIf="filteredReviews.length > 0">
+      <app-review-card
+        *ngFor="let review of filteredReviews"
+        [review]="review"
+        [showJobTitle]="showJobTitle"
+        (helpful)="onMarkHelpful(review, $event)"
+      ></app-review-card>
+    </div>
+
+    <!-- No Results After Filter -->
+    <div *ngIf="reviews.length > 0 && filteredReviews.length === 0" class="no-results">
+      <mat-icon class="no-results-icon">filter_list_off</mat-icon>
+      <h3>No Reviews Match Your Filters</h3>
+      <p>Try adjusting your filters to see more reviews.</p>
+      <button mat-button color="primary" (click)="selectedRating = 'all'; onRatingChange()">
+        Clear Filters
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,165 @@
+<mat-sidenav-container class="sidenav-container">
+  <!-- Side Navigation -->
+  <mat-sidenav #sidenav [(opened)]="sidenavOpened" mode="over">
+    <mat-nav-list>
+      <div class="sidenav-header">
+        <h2>Freework</h2>
+        <button mat-icon-button (click)="closeSidenav()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- User Info if Logged In -->
+      <div class="sidenav-user-info" *ngIf="authService.isLoggedIn()">
+        <mat-icon>account_circle</mat-icon>
+        <div>
+          <strong>{{ authService.getCurrentUser()?.firstName }} {{ authService.getCurrentUser()?.lastName }}</strong>
+          <small>{{ authService.getCurrentUser()?.email }}</small>
+        </div>
+      </div>
+
+      <mat-divider *ngIf="authService.isLoggedIn()"></mat-divider>
+
+      <!-- Navigation Links -->
+      <a mat-list-item routerLink="/jobs" (click)="closeSidenav()">
+        <mat-icon matListItemIcon>search</mat-icon>
+        <span matListItemTitle>Browse Jobs</span>
+      </a>
+
+      <!-- Authenticated Links -->
+      <ng-container *ngIf="authService.isLoggedIn()">
+        <a mat-list-item routerLink="/messages" (click)="closeSidenav()">
+          <mat-icon matListItemIcon>message</mat-icon>
+          <span matListItemTitle>Messages</span>
+        </a>
+
+        <!-- Customer Only -->
+        <ng-container *ngIf="authService.getCurrentUser()?.role === 'CUSTOMER'">
+          <a mat-list-item routerLink="/jobs/new" (click)="closeSidenav()">
+            <mat-icon matListItemIcon>add</mat-icon>
+            <span matListItemTitle>Post Job</span>
+          </a>
+
+          <a mat-list-item routerLink="/my-jobs" (click)="closeSidenav()">
+            <mat-icon matListItemIcon>work_outline</mat-icon>
+            <span matListItemTitle>My Jobs</span>
+          </a>
+        </ng-container>
+
+        <!-- Freelancer Only -->
+        <ng-container *ngIf="authService.getCurrentUser()?.role === 'FREELANCER'">
+          <a mat-list-item routerLink="/my-active-jobs" (click)="closeSidenav()">
+            <mat-icon matListItemIcon>work</mat-icon>
+            <span matListItemTitle>My Active Jobs</span>
+          </a>
+
+          <a mat-list-item routerLink="/my-applications" (click)="closeSidenav()">
+            <mat-icon matListItemIcon>assignment</mat-icon>
+            <span matListItemTitle>My Applications</span>
+          </a>
+        </ng-container>
+
+        <a mat-list-item routerLink="/payments" (click)="closeSidenav()">
+          <mat-icon matListItemIcon>payment</mat-icon>
+          <span matListItemTitle>Payments</span>
+        </a>
+
+        <mat-divider></mat-divider>
+
+        <a mat-list-item routerLink="/profile" (click)="closeSidenav()">
+          <mat-icon matListItemIcon>person</mat-icon>
+          <span matListItemTitle>Profile</span>
+        </a>
+
+        <a mat-list-item routerLink="/settings" (click)="closeSidenav()">
+          <mat-icon matListItemIcon>settings</mat-icon>
+          <span matListItemTitle>Settings</span>
+        </a>
+
+        <mat-divider></mat-divider>
+
+        <a mat-list-item (click)="logout()">
+          <mat-icon matListItemIcon>logout</mat-icon>
+          <span matListItemTitle>Logout</span>
+        </a>
+      </ng-container>
+
+      <!-- Not Logged In -->
+      <ng-container *ngIf="!authService.isLoggedIn()">
+        <a mat-list-item routerLink="/login" (click)="closeSidenav()">
+          <mat-icon matListItemIcon>login</mat-icon>
+          <span matListItemTitle>Login</span>
+        </a>
+      </ng-container>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <!-- Main Content -->
+  <mat-sidenav-content>
+    <div class="app-container">
+      <!-- Navigation Bar -->
+      <mat-toolbar color="primary" class="app-toolbar">
+        <div class="toolbar-content">
+          <!-- Burger Menu Button -->
+          <button mat-icon-button (click)="sidenavOpened = !sidenavOpened" class="menu-button">
+            <mat-icon>menu</mat-icon>
+          </button>
+
+          <!-- Logo -->
+          <a routerLink="/" class="logo">
+            <mat-icon>work</mat-icon>
+            <span>Freework</span>
+          </a>
+
+          <!-- Spacer to push user menu to the right -->
+          <span class="spacer"></span>
+
+          <!-- User Menu -->
+          <div class="user-menu">
+            <!-- Not Logged In -->
+            <ng-container *ngIf="!authService.isLoggedIn()">
+              <a mat-button routerLink="/login" class="login-button">
+                <mat-icon>login</mat-icon>
+                Login
+              </a>
+            </ng-container>
+
+            <!-- Logged In -->
+            <ng-container *ngIf="authService.isLoggedIn()">
+              <button mat-icon-button [matMenuTriggerFor]="userMenu">
+                <mat-icon>account_circle</mat-icon>
+              </button>
+              <mat-menu #userMenu="matMenu">
+                <div class="user-info">
+                  <strong>{{ authService.getCurrentUser()?.firstName }} {{ authService.getCurrentUser()?.lastName }}</strong>
+                  <small>{{ authService.getCurrentUser()?.email }}</small>
+                </div>
+                <mat-divider></mat-divider>
+                <button mat-menu-item routerLink="/profile">
+                  <mat-icon>person</mat-icon>
+                  Profile
+                </button>
+                <button mat-menu-item routerLink="/settings">
+                  <mat-icon>settings</mat-icon>
+                  Settings
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="logout()">
+                  <mat-icon>logout</mat-icon>
+                  Logout
+                </button>
+              </mat-menu>
+            </ng-container>
+          </div>
+        </div>
+      </mat-toolbar>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

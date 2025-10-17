@@ -1,0 +1,359 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { map, catchError, tap } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import { AuthResponse, LoginRequest, RegisterRequest, User, RefreshTokenRequest, TokenPayload } from './models';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private readonly API_URL = 'http://localhost:8080/api/auth'; // Update with your backend URL
+  private readonly TOKEN_KEY = 'freework_access_token';
+  private readonly REFRESH_TOKEN_KEY = 'freework_refresh_token';
+  private useMockData = true; // Toggle to switch between mock and real API
+
+  private currentUserSubject: BehaviorSubject<User | null>;
+  public currentUser$: Observable<User | null>;
+
+  private refreshTokenTimeout?: ReturnType<typeof setTimeout>;
+
+  // Mock users for testing
+  private mockUsers: User[] = [
+    {
+      id: 'freelancer1',
+      email: 'john@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      role: 'FREELANCER',
+      profilePicture: 'https://i.pravatar.cc/150?img=12',
+      createdAt: '2024-01-15T10:00:00Z'
+    },
+    {
+      id: 'emily-chen',
+      email: 'emily@example.com',
+      firstName: 'Emily',
+      lastName: 'Chen',
+      role: 'CUSTOMER',
+      profilePicture: 'https://i.pravatar.cc/150?img=20',
+      createdAt: '2024-03-20T14:30:00Z'
+    }
+  ];
+
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {
+    const storedUser = this.getStoredUser();
+    this.currentUserSubject = new BehaviorSubject<User | null>(storedUser);
+    this.currentUser$ = this.currentUserSubject.asObservable();
+
+    // Start refresh token timer if user is logged in
+    if (storedUser && this.getAccessToken()) {
+      this.startRefreshTokenTimer();
+    }
+  }
+
+  public get currentUserValue(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  public get isAuthenticated(): boolean {
+    const token = this.getAccessToken();
+    return !!token && !this.isTokenExpired(token);
+  }
+
+  /**
+   * Login with email and password
+   */
+  login(credentials: LoginRequest): Observable<AuthResponse> {
+    // Use mock authentication for testing
+    if (this.useMockData) {
+      return this.mockLogin(credentials);
+    }
+
+    return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials)
+      .pipe(
+        tap(response => this.handleAuthResponse(response)),
+        catchError(error => {
+          console.error('Login error:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
+   * Mock login for testing
+   */
+  private mockLogin(credentials: LoginRequest): Observable<AuthResponse> {
+    // Simulate API delay
+    return new Observable(observer => {
+      setTimeout(() => {
+        const user = this.mockUsers.find(u => u.email === credentials.email);
+
+        if (!user) {
+          observer.error({ message: 'Invalid email or password' });
+          return;
+        }
+
+        // For mock, accept any password with "password" or the user's first name
+        const validPassword = credentials.password === 'password' ||
+                            credentials.password.toLowerCase() === user.firstName.toLowerCase();
+
+        if (!validPassword) {
+          observer.error({ message: 'Invalid email or password' });
+          return;
+        }
+
+        const mockToken = 'mock-jwt-token-' + user.id;
+        const mockRefreshToken = 'mock-refresh-token-' + user.id;
+
+        const response: AuthResponse = {
+          accessToken: mockToken,
+          refreshToken: mockRefreshToken,
+          tokenType: 'Bearer',
+          user: user,
+          expiresIn: 3600
+        };
+
+        this.handleAuthResponse(response);
+        observer.next(response);
+        observer.complete();
+      }, 800);
+    });
+  }
+
+  /**
+   * Register new user
+   */
+  register(userData: RegisterRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.API_URL}/register`, userData)
+      .pipe(
+        tap(response => this.handleAuthResponse(response)),
+        catchError(error => {
+          console.error('Registration error:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
+   * OAuth2 login (Google, GitHub, etc.)
+   */
+  loginWithOAuth(provider: 'google' | 'github'): void {
+    // Redirect to backend OAuth endpoint
+    window.location.href = `${this.API_URL}/oauth2/authorize/${provider}`;
+  }
+
+  /**
+   * Handle OAuth callback
+   */
+  handleOAuthCallback(token: string, refreshToken: string): void {
+    this.setTokens(token, refreshToken);
+    this.fetchUserProfile().subscribe({
+      next: (user) => {
+        this.currentUserSubject.next(user);
+        this.storeUser(user);
+        this.startRefreshTokenTimer();
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => {
+        console.error('Error fetching user profile:', error);
+        this.logout();
+      }
+    });
+  }
+
+  /**
+   * Logout user
+   */
+  logout(): void {
+    // Call backend to invalidate tokens
+    const refreshToken = this.getRefreshToken();
+    if (refreshToken) {
+      this.http.post(`${this.API_URL}/logout`, { refreshToken }).subscribe();
+    }
+
+    this.clearTokens();
+    this.currentUserSubject.next(null);
+    this.stopRefreshTokenTimer();
+    this.router.navigate(['/login']);
+  }
+
+  /**
+   * Refresh access token using refresh token
+   */
+  refreshToken(): Observable<AuthResponse> {
+    const refreshToken = this.getRefreshToken();
+
+    if (!refreshToken) {
+      this.logout();
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    const request: RefreshTokenRequest = { refreshToken };
+
+    return this.http.post<AuthResponse>(`${this.API_URL}/refresh`, request)
+      .pipe(
+        tap(response => {
+          this.setTokens(response.accessToken, response.refreshToken);
+          this.startRefreshTokenTimer();
+        }),
+        catchError(error => {
+          console.error('Token refresh failed:', error);
+          this.logout();
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
+   * Fetch current user profile
+   */
+  fetchUserProfile(): Observable<User> {
+    return this.http.get<User>(`${this.API_URL}/me`)
+      .pipe(
+        tap(user => {
+          this.currentUserSubject.next(user);
+          this.storeUser(user);
+        })
+      );
+  }
+
+  /**
+   * Get access token from storage
+   */
+  getAccessToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  /**
+   * Get refresh token from storage
+   */
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+  }
+
+  /**
+   * Set tokens in storage
+   */
+  private setTokens(accessToken: string, refreshToken: string): void {
+    localStorage.setItem(this.TOKEN_KEY, accessToken);
+    localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
+  }
+
+  /**
+   * Clear all tokens and user data
+   */
+  private clearTokens(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    localStorage.removeItem('freework_user');
+  }
+
+  /**
+   * Store user data
+   */
+  private storeUser(user: User): void {
+    localStorage.setItem('freework_user', JSON.stringify(user));
+  }
+
+  /**
+   * Get stored user data
+   */
+  private getStoredUser(): User | null {
+    const userStr = localStorage.getItem('freework_user');
+    return userStr ? JSON.parse(userStr) : null;
+  }
+
+  /**
+   * Handle authentication response
+   */
+  private handleAuthResponse(response: AuthResponse): void {
+    this.setTokens(response.accessToken, response.refreshToken);
+    this.currentUserSubject.next(response.user);
+    this.storeUser(response.user);
+    this.startRefreshTokenTimer();
+  }
+
+  /**
+   * Decode JWT token
+   */
+  private decodeToken(token: string): TokenPayload | null {
+    try {
+      const payload = token.split('.')[1];
+      return JSON.parse(atob(payload));
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Check if token is expired
+   */
+  private isTokenExpired(token: string): boolean {
+    // Mock tokens never expire
+    if (this.useMockData && token.startsWith('mock-jwt-token-')) {
+      return false;
+    }
+
+    const decoded = this.decodeToken(token);
+    if (!decoded || !decoded.exp) {
+      return true;
+    }
+
+    const expirationDate = new Date(decoded.exp * 1000);
+    return expirationDate <= new Date();
+  }
+
+  /**
+   * Start automatic token refresh timer
+   */
+  private startRefreshTokenTimer(): void {
+    const token = this.getAccessToken();
+    if (!token) return;
+
+    // For mock data, don't need to refresh
+    if (this.useMockData && token.startsWith('mock-jwt-token-')) {
+      return;
+    }
+
+    const decoded = this.decodeToken(token);
+    if (!decoded || !decoded.exp) return;
+
+    // Refresh token 1 minute before expiration
+    const expires = new Date(decoded.exp * 1000);
+    const timeout = expires.getTime() - Date.now() - (60 * 1000);
+
+    this.refreshTokenTimeout = setTimeout(() => {
+      this.refreshToken().subscribe();
+    }, timeout);
+  }
+
+  /**
+   * Stop automatic token refresh timer
+   */
+  private stopRefreshTokenTimer(): void {
+    if (this.refreshTokenTimeout) {
+      clearTimeout(this.refreshTokenTimeout);
+    }
+  }
+
+  /**
+   * Check if user is logged in (alias for isAuthenticated)
+   * Used by auth guards
+   */
+  isLoggedIn(): boolean {
+    return this.isAuthenticated;
+  }
+
+  /**
+   * Get current user (alias for currentUserValue)
+   * Used by auth guards
+   */
+  getCurrentUser(): User | null {
+    return this.currentUserValue;
+  }
+}

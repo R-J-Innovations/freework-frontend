@@ -1,0 +1,190 @@
+<div class="job-list-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <h1>
+        <mat-icon>work_outline</mat-icon>
+        Browse Jobs
+      </h1>
+      <p>Find your next opportunity from thousands of available projects</p>
+    </div>
+    <button
+      *ngIf="isCustomer()"
+      mat-raised-button
+      color="primary"
+      (click)="createNewJob()"
+      class="post-job-btn">
+      <mat-icon>add</mat-icon>
+      Post a Job
+    </button>
+  </div>
+
+  <!-- Filters Section -->
+  <mat-card class="filters-card">
+    <form [formGroup]="filterForm">
+      <div class="filters-row">
+        <!-- Search -->
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search jobs</mat-label>
+          <input matInput formControlName="search" placeholder="Keywords, skills, or title...">
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Category -->
+        <mat-form-field appearance="outline">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category">
+            <mat-option value="">All Categories</mat-option>
+            <mat-option *ngFor="let category of categories" [value]="category.id">
+              <mat-icon>{{ category.icon }}</mat-icon>
+              {{ category.name }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>category</mat-icon>
+        </mat-form-field>
+
+        <!-- Location Type -->
+        <mat-form-field appearance="outline">
+          <mat-label>Work Type</mat-label>
+          <mat-select formControlName="locationType">
+            <mat-option value="">All Types</mat-option>
+            <mat-option value="REMOTE">Remote</mat-option>
+            <mat-option value="ONSITE">On-site</mat-option>
+            <mat-option value="HYBRID">Hybrid</mat-option>
+          </mat-select>
+          <mat-icon matPrefix>location_on</mat-icon>
+        </mat-form-field>
+
+        <!-- Budget Type -->
+        <mat-form-field appearance="outline">
+          <mat-label>Budget Type</mat-label>
+          <mat-select formControlName="budgetType">
+            <mat-option value="">All Types</mat-option>
+            <mat-option value="FIXED">Fixed Price</mat-option>
+            <mat-option value="HOURLY">Hourly Rate</mat-option>
+          </mat-select>
+          <mat-icon matPrefix>attach_money</mat-icon>
+        </mat-form-field>
+
+        <!-- Clear Filters Button -->
+        <button mat-stroked-button type="button" (click)="clearFilters()" class="clear-btn">
+          <mat-icon>clear</mat-icon>
+          Clear
+        </button>
+      </div>
+
+      <!-- Budget Range -->
+      <div class="budget-range">
+        <mat-form-field appearance="outline" class="budget-field">
+          <mat-label>Min Budget</mat-label>
+          <input matInput type="number" formControlName="minBudget" placeholder="0">
+          <span matTextPrefix>$&nbsp;</span>
+        </mat-form-field>
+        <span class="range-separator">to</span>
+        <mat-form-field appearance="outline" class="budget-field">
+          <mat-label>Max Budget</mat-label>
+          <input matInput type="number" formControlName="maxBudget" placeholder="10000">
+          <span matTextPrefix>$&nbsp;</span>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-card>
+
+  <!-- Results Info -->
+  <div class="results-info" *ngIf="!loading">
+    <p>
+      <strong>{{ totalElements }}</strong> job{{ totalElements !== 1 ? 's' : '' }} found
+    </p>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading jobs...</p>
+  </div>
+
+  <!-- Jobs List -->
+  <div class="jobs-grid" *ngIf="!loading && jobs.length > 0">
+    <mat-card class="job-card" *ngFor="let job of jobs" (click)="viewJobDetail(job.id)">
+      <!-- Card Header -->
+      <div class="job-card-header">
+        <div class="job-title-section">
+          <h3>{{ job.title }}</h3>
+          <span class="time-posted">{{ getTimeSincePosted(job.createdAt) }}</span>
+        </div>
+        <mat-chip [highlighted]="true" [color]="getLocationTypeColor(job.locationType)">
+          {{ getLocationTypeLabel(job.locationType) }}
+        </mat-chip>
+      </div>
+
+      <!-- Job Description Preview -->
+      <p class="job-description">
+        {{ job.description.length > 200 ? (job.description.substring(0, 200) + '...') : job.description }}
+      </p>
+
+      <!-- Job Meta Info -->
+      <div class="job-meta">
+        <div class="meta-item">
+          <mat-icon>{{ getCategoryIcon(job.category) }}</mat-icon>
+          <span>{{ getCategoryName(job.category) }}</span>
+        </div>
+        <div class="meta-item">
+          <mat-icon>location_on</mat-icon>
+          <span>{{ job.location }}</span>
+        </div>
+        <div class="meta-item">
+          <mat-icon>event</mat-icon>
+          <span>{{ job.deadline | date: 'MMM d, yyyy' }}</span>
+        </div>
+      </div>
+
+      <!-- Skills -->
+      <div class="skills-section">
+        <mat-chip-set>
+          <mat-chip *ngFor="let skill of job.skills.slice(0, 4)">
+            {{ skill }}
+          </mat-chip>
+          <mat-chip *ngIf="job.skills.length > 4">
+            +{{ job.skills.length - 4 }} more
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <!-- Card Footer -->
+      <div class="job-card-footer">
+        <div class="budget-section">
+          <mat-icon>attach_money</mat-icon>
+          <span class="budget-amount">{{ formatBudget(job) }}</span>
+        </div>
+        <div class="applications-badge" [matTooltip]="job.applicationsCount + ' application(s)'">
+          <mat-icon [matBadge]="job.applicationsCount" matBadgeColor="accent" matBadgeSize="small">
+            people
+          </mat-icon>
+          <span>{{ job.applicationsCount }} {{ job.applicationsCount === 1 ? 'Application' : 'Applications' }}</span>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- No Results -->
+  <div class="no-results" *ngIf="!loading && jobs.length === 0">
+    <mat-icon>search_off</mat-icon>
+    <h3>No jobs found</h3>
+    <p>Try adjusting your filters or search terms</p>
+    <button mat-raised-button color="primary" (click)="clearFilters()">
+      Clear Filters
+    </button>
+  </div>
+
+  <!-- Pagination -->
+  <mat-paginator
+    *ngIf="!loading && jobs.length > 0"
+    [length]="totalElements"
+    [pageSize]="pageSize"
+    [pageIndex]="pageIndex"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    (page)="onPageChange($event)"
+    showFirstLastButtons
+    class="jobs-paginator">
+  </mat-paginator>
+</div>

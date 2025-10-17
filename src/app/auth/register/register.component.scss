@@ -1,0 +1,247 @@
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-accent-600) 0%, var(--color-accent-700) 100%);
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.register-card {
+  width: 100%;
+  max-width: 500px;
+  padding: var(--spacing-2xl);
+  background: var(--color-background);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: none;
+}
+
+mat-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: var(--spacing-2xl);
+  text-align: center;
+}
+
+mat-card-title {
+  font-size: 1.75rem !important;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm) !important;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+mat-card-subtitle {
+  font-size: 14px !important;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.name-row {
+  display: flex;
+  gap: var(--spacing-lg);
+
+  .half-width {
+    flex: 1;
+  }
+}
+
+mat-form-field {
+  margin-bottom: var(--spacing-lg);
+}
+
+.role-section {
+  margin: var(--spacing-xl) 0 var(--spacing-xl);
+  padding: var(--spacing-xl);
+  background: var(--color-gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.role-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text-primary);
+}
+
+.role-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.role-option {
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  transition: all var(--transition-base);
+  background: var(--color-background);
+
+  &:hover {
+    border-color: var(--color-accent-600);
+    background-color: var(--color-accent-50);
+  }
+
+  &.mat-mdc-radio-checked {
+    border-color: var(--color-accent-600);
+    background-color: var(--color-accent-50);
+  }
+}
+
+.role-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: 0.5rem;
+
+  mat-icon {
+    color: #0ea5e9;
+    font-size: 1.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  div {
+    flex: 1;
+
+    strong {
+      display: block;
+      font-size: 0.938rem;
+      margin-bottom: 0.25rem;
+      color: #1a202c;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.813rem;
+      color: #718096;
+    }
+  }
+}
+
+.submit-btn {
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  position: relative;
+  border-radius: 10px;
+}
+
+.button-spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+
+  p {
+    margin: 0;
+    color: #718096;
+    font-size: 0.938rem;
+  }
+
+  a {
+    color: #0ea5e9;
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      color: #0284c7;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+  .register-card {
+    padding: 2rem 1.5rem;
+  }
+
+  mat-card-title {
+    font-size: 1.5rem !important;
+  }
+
+  .name-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .register-container {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .register-card {
+    max-width: 100%;
+    padding: var(--spacing-xl);
+  }
+
+  mat-card-title {
+    font-size: 1.5rem !important;
+  }
+
+  .name-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .role-section {
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+  }
+
+  mat-form-field {
+    margin-bottom: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .register-container {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+
+  .register-card {
+    padding: var(--spacing-lg);
+  }
+
+  mat-card-header {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  mat-card-title {
+    font-size: 1.25rem !important;
+  }
+
+  mat-card-subtitle {
+    font-size: 13px !important;
+  }
+
+  .role-section {
+    padding: var(--spacing-md);
+  }
+
+  .role-option {
+    padding: var(--spacing-md);
+  }
+
+  .register-button {
+    height: 48px; // Larger touch target
+  }
+}

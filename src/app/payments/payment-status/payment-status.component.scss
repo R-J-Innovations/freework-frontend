@@ -1,0 +1,244 @@
+.payment-status-container {
+  .status-card {
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+}
+
+.current-status {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  .status-chip {
+    font-size: 1rem;
+    padding: 1rem 1.5rem;
+    height: auto;
+
+    mat-icon {
+      margin-right: 0.5rem;
+    }
+  }
+
+  .status-message {
+    margin: 1rem 0 0.5rem;
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  .last-updated {
+    margin: 0;
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.progress-section {
+  margin: 2rem 0;
+}
+
+.status-timeline {
+  display: flex;
+  justify-content: space-between;
+  margin: 3rem 0;
+  position: relative;
+
+  .timeline-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+
+    .step-indicator {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      position: relative;
+
+      .step-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        z-index: 2;
+        position: relative;
+        transition: all 0.3s;
+
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+      }
+
+      .step-line {
+        flex: 1;
+        height: 3px;
+        background: #e0e0e0;
+        position: absolute;
+        left: 50%;
+        width: 100%;
+        z-index: 1;
+      }
+    }
+
+    .step-content {
+      margin-top: 1rem;
+      text-align: center;
+
+      h4 {
+        margin: 0 0 0.25rem 0;
+        font-size: 0.95rem;
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.75rem;
+        color: rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    &.completed {
+      .step-circle {
+        background: #1976d2;
+        color: white;
+      }
+
+      .step-line {
+        background: #1976d2;
+      }
+
+      .step-content {
+        h4 {
+          color: #1976d2;
+          font-weight: 600;
+        }
+      }
+    }
+
+    &.active {
+      .step-circle {
+        background: #ffa726;
+        color: white;
+        box-shadow: 0 0 0 4px rgba(255, 167, 38, 0.2);
+        animation: pulse 2s infinite;
+      }
+
+      .step-content {
+        h4 {
+          color: #ffa726;
+          font-weight: 600;
+        }
+
+        p {
+          color: #ffa726;
+        }
+      }
+    }
+
+    &:last-child {
+      .step-line {
+        display: none;
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(255, 167, 38, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 167, 38, 0.1);
+  }
+}
+
+.status-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+
+  .info-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 8px;
+
+    mat-icon {
+      color: #1976d2;
+      font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .info-content {
+      h4 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+        color: rgba(0, 0, 0, 0.87);
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: rgba(0, 0, 0, 0.6);
+        line-height: 1.5;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .status-timeline {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .timeline-step {
+      flex-direction: row;
+      align-items: flex-start;
+      width: 100%;
+
+      .step-indicator {
+        flex-direction: column;
+        width: auto;
+
+        .step-line {
+          width: 3px;
+          height: 50px;
+          left: 50%;
+          top: 100%;
+          transform: translateX(-50%);
+        }
+      }
+
+      .step-content {
+        margin-top: 0;
+        margin-left: 1rem;
+        text-align: left;
+      }
+
+      &:last-child {
+        .step-line {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .status-info {
+    grid-template-columns: 1fr;
+  }
+}
+

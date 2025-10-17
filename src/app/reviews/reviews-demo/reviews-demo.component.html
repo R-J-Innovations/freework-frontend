@@ -1,0 +1,408 @@
+<div class="reviews-demo-container">
+  <div class="demo-header">
+    <h1>
+      <mat-icon>star_rate</mat-icon>
+      Reviews & Ratings System Demo
+    </h1>
+    <p class="subtitle">Comprehensive review system for freelancers and customers</p>
+  </div>
+
+  <mat-tab-group class="demo-tabs">
+    <!-- Rating Summary Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">assessment</mat-icon>
+        Rating Summary
+      </ng-template>
+      <div class="tab-content">
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>Rating Summary Component</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>Displays aggregate rating statistics with overall score and distribution breakdown.</p>
+            <ul>
+              <li>Shows average rating with visual stars</li>
+              <li>Displays rating distribution (5-star breakdown)</li>
+              <li>Beautiful gradient design</li>
+              <li>Responsive and mobile-friendly</li>
+            </ul>
+          </mat-card-content>
+        </mat-card>
+
+        <div class="demo-section">
+          <h3>Job Rating Summary</h3>
+          <app-rating-summary
+            [targetId]="demoJobId"
+            [targetType]="'job'"
+            [showTitle]="true"
+          ></app-rating-summary>
+        </div>
+
+        <div class="demo-section">
+          <h3>User Rating Summary</h3>
+          <app-rating-summary
+            [targetId]="demoUserId"
+            [targetType]="'user'"
+            [showTitle]="true"
+          ></app-rating-summary>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Review List Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">reviews</mat-icon>
+        Review List
+      </ng-template>
+      <div class="tab-content">
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>Review List Component</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>Displays multiple reviews with filtering and sorting capabilities.</p>
+            <ul>
+              <li>Filter by star rating</li>
+              <li>Sort by date, rating, or helpfulness</li>
+              <li>Loading and error states</li>
+              <li>Empty state messaging</li>
+            </ul>
+          </mat-card-content>
+        </mat-card>
+
+        <div class="demo-section">
+          <h3>Reviews for Job #{{ demoJobId }}</h3>
+          <app-review-list
+            [jobId]="demoJobId"
+            [showJobTitle]="false"
+            [showFilters]="true"
+          ></app-review-list>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Review Form Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">rate_review</mat-icon>
+        Review Form
+      </ng-template>
+      <div class="tab-content">
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>Review Form Component</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>Comprehensive form for submitting reviews with validation.</p>
+            <ul>
+              <li>Interactive 5-star rating system</li>
+              <li>Title and detailed comment fields</li>
+              <li>Optional pros and cons with chips</li>
+              <li>Built-in validation (min 20 characters)</li>
+              <li>Review guidelines included</li>
+            </ul>
+          </mat-card-content>
+        </mat-card>
+
+        <div class="demo-section">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="toggleReviewForm()"
+            class="toggle-form-button"
+          >
+            <mat-icon>{{ showReviewForm ? 'close' : 'add' }}</mat-icon>
+            {{ showReviewForm ? 'Cancel Review' : 'Write a Review' }}
+          </button>
+
+          <div *ngIf="showReviewForm" class="form-container">
+            <app-review-form
+              [jobId]="demoJobId"
+              [revieweeId]="demoUserId"
+              [revieweeName]="demoUserName"
+              [reviewType]="ReviewType.FREELANCER_REVIEW"
+              (reviewSubmitted)="onReviewSubmitted()"
+            ></app-review-form>
+          </div>
+
+          <div *ngIf="!showReviewForm" class="placeholder-message">
+            <mat-icon>info</mat-icon>
+            <p>Click "Write a Review" to see the review form in action</p>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- All Components Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">dashboard</mat-icon>
+        All Together
+      </ng-template>
+      <div class="tab-content">
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>Complete Review System</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>See how all components work together in a real-world scenario.</p>
+          </mat-card-content>
+        </mat-card>
+
+        <div class="two-column-layout">
+          <div class="left-column">
+            <h3>Rating Overview</h3>
+            <app-rating-summary
+              [targetId]="demoJobId"
+              [targetType]="'job'"
+              [showTitle]="false"
+            ></app-rating-summary>
+
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="toggleReviewForm()"
+              class="write-review-button"
+            >
+              <mat-icon>rate_review</mat-icon>
+              Write a Review
+            </button>
+          </div>
+
+          <div class="right-column">
+            <h3>Recent Reviews</h3>
+            <app-review-list
+              [jobId]="demoJobId"
+              [showJobTitle]="false"
+              [showFilters]="false"
+              [limit]="3"
+            ></app-review-list>
+          </div>
+        </div>
+
+        <div *ngIf="showReviewForm" class="form-overlay">
+          <div class="form-wrapper">
+            <button
+              mat-icon-button
+              class="close-button"
+              (click)="toggleReviewForm()"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+            <app-review-form
+              [jobId]="demoJobId"
+              [revieweeId]="demoUserId"
+              [revieweeName]="demoUserName"
+              [reviewType]="ReviewType.FREELANCER_REVIEW"
+              (reviewSubmitted)="onReviewSubmitted()"
+            ></app-review-form>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Documentation Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">description</mat-icon>
+        Documentation
+      </ng-template>
+      <div class="tab-content">
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>Implementation Guide</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <h3>Components Overview</h3>
+            <div class="component-docs">
+              <div class="doc-section">
+                <h4><mat-icon>rate_review</mat-icon> Review Form</h4>
+                <p><strong>Purpose:</strong> Allow users to submit ratings and reviews</p>
+                <p><strong>Location:</strong> <code>src/app/reviews/review-form/</code></p>
+                <p><strong>Key Features:</strong></p>
+                <ul>
+                  <li>5-star rating with hover effects</li>
+                  <li>Title and comment validation</li>
+                  <li>Optional pros/cons with chip input</li>
+                </ul>
+              </div>
+
+              <div class="doc-section">
+                <h4><mat-icon>reviews</mat-icon> Review Card</h4>
+                <p><strong>Purpose:</strong> Display individual reviews</p>
+                <p><strong>Location:</strong> <code>src/app/reviews/review-card/</code></p>
+                <p><strong>Key Features:</strong></p>
+                <ul>
+                  <li>Reviewer profile and avatar</li>
+                  <li>Star rating display</li>
+                  <li>Helpful voting system</li>
+                  <li>Edit/Delete actions</li>
+                </ul>
+              </div>
+
+              <div class="doc-section">
+                <h4><mat-icon>assessment</mat-icon> Rating Summary</h4>
+                <p><strong>Purpose:</strong> Show aggregate rating statistics</p>
+                <p><strong>Location:</strong> <code>src/app/reviews/rating-summary/</code></p>
+                <p><strong>Key Features:</strong></p>
+                <ul>
+                  <li>Overall rating score</li>
+                  <li>Star distribution breakdown</li>
+                  <li>Visual progress bars</li>
+                </ul>
+              </div>
+
+              <div class="doc-section">
+                <h4><mat-icon>list</mat-icon> Review List</h4>
+                <p><strong>Purpose:</strong> Display and manage multiple reviews</p>
+                <p><strong>Location:</strong> <code>src/app/reviews/review-list/</code></p>
+                <p><strong>Key Features:</strong></p>
+                <ul>
+                  <li>Filter by rating</li>
+                  <li>Sort by date/rating/helpful</li>
+                  <li>Empty and error states</li>
+                </ul>
+              </div>
+            </div>
+
+            <h3>Usage Examples</h3>
+            <div class="code-examples">
+              <h4>Basic Review Form</h4>
+              <pre><code>&lt;app-review-form
+  [jobId]="jobId"
+  [revieweeId]="userId"
+  [revieweeName]="userName"
+  [reviewType]="ReviewType.FREELANCER_REVIEW"
+  (reviewSubmitted)="onReviewSubmitted()"
+&gt;&lt;/app-review-form&gt;</code></pre>
+
+              <h4>Rating Summary</h4>
+              <pre><code>&lt;app-rating-summary
+  [targetId]="jobId"
+  [targetType]="'job'"
+  [showTitle]="true"
+&gt;&lt;/app-rating-summary&gt;</code></pre>
+
+              <h4>Review List with Filters</h4>
+              <pre><code>&lt;app-review-list
+  [jobId]="jobId"
+  [showJobTitle]="false"
+  [showFilters]="true"
+  [limit]="10"
+&gt;&lt;/app-review-list&gt;</code></pre>
+            </div>
+
+            <div class="doc-links">
+              <h3>Additional Resources</h3>
+              <p>For complete documentation, see: <code>REVIEWS_SYSTEM_GUIDE.md</code></p>
+              <ul>
+                <li>API Integration details</li>
+                <li>Mock data service usage</li>
+                <li>Styling customization</li>
+                <li>Best practices for reviews</li>
+              </ul>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-tab>
+
+    <!-- Bidirectional Review System Tab -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">swap_horiz</mat-icon>
+        Bidirectional Reviews
+      </ng-template>
+      <div class="tab-content">
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>Bidirectional Review System</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>Demonstrates the review system where both freelancers and customers can review each other.</p>
+          </mat-card-content>
+        </mat-card>
+
+        <div class="demo-section">
+          <h3>Bidirectional Review System</h3>
+
+          <div class="review-type-cards">
+            <mat-card class="review-type-card">
+              <mat-card-header>
+                <mat-icon class="review-type-icon customer-icon">person</mat-icon>
+                <mat-card-title>Customer Reviews Freelancer</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <p>After a job is completed, customers can rate and review:</p>
+                <ul>
+                  <li>Quality of work delivered</li>
+                  <li>Communication & professionalism</li>
+                  <li>Meeting deadlines</li>
+                  <li>Technical skills</li>
+                </ul>
+                <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="toggleReviewForm(ReviewType.FREELANCER_REVIEW)"
+                  class="review-type-button"
+                >
+                  <mat-icon>rate_review</mat-icon>
+                  Review a Freelancer
+                </button>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="review-type-card">
+              <mat-card-header>
+                <mat-icon class="review-type-icon freelancer-icon">work</mat-icon>
+                <mat-card-title>Freelancer Reviews Customer</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <p>Freelancers can also rate and review their experience:</p>
+                <ul>
+                  <li>Clear requirements & communication</li>
+                  <li>Timely payments</li>
+                  <li>Professionalism</li>
+                  <li>Reasonable expectations</li>
+                </ul>
+                <button
+                  mat-raised-button
+                  color="accent"
+                  (click)="toggleReviewForm(ReviewType.CUSTOMER_REVIEW)"
+                  class="review-type-button"
+                >
+                  <mat-icon>rate_review</mat-icon>
+                  Review a Customer
+                </button>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <div *ngIf="showReviewForm" class="form-container">
+            <div class="form-header">
+              <h4>
+                <mat-icon>{{ reviewFormType === ReviewType.FREELANCER_REVIEW ? 'person' : 'work' }}</mat-icon>
+                {{ reviewFormType === ReviewType.FREELANCER_REVIEW ? 'Reviewing Freelancer' : 'Reviewing Customer' }}
+              </h4>
+            </div>
+            <app-review-form
+              [jobId]="demoJobId"
+              [revieweeId]="getRevieweeId()"
+              [revieweeName]="getRevieweeName()"
+              [reviewType]="reviewFormType"
+              (reviewSubmitted)="onReviewSubmitted()"
+            ></app-review-form>
+          </div>
+
+          <div *ngIf="!showReviewForm" class="placeholder-message">
+            <mat-icon>info</mat-icon>
+            <p>Choose a review type above to see the form in action</p>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+

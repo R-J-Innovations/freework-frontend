@@ -1,0 +1,79 @@
+<div class="stripe-payment-dialog">
+  <h2 mat-dialog-title>
+    <mat-icon>credit_card</mat-icon>
+    Secure Payment
+  </h2>
+
+  <mat-dialog-content>
+    <div class="payment-summary">
+      <h3>Payment Details</h3>
+      <div class="summary-row">
+        <span>Job:</span>
+        <span class="value">{{ jobTitle }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Amount:</span>
+        <span class="value amount">${{ amount.toFixed(2) }} {{ currency }}</span>
+      </div>
+      <div class="summary-row">
+        <span>Type:</span>
+        <span class="value">{{ paymentType }}</span>
+      </div>
+    </div>
+
+    <mat-card class="card-section" *ngIf="!paymentSuccess">
+      <mat-card-content>
+        <div class="card-info">
+          <mat-icon>info</mat-icon>
+          <p>Your payment will be held in escrow until the work is completed and approved.</p>
+        </div>
+
+        <div class="stripe-card-element">
+          <label>Card Information</label>
+          <div id="card-element"></div>
+        </div>
+
+        <div *ngIf="paymentError" class="error-message">
+          <mat-icon>error</mat-icon>
+          {{ paymentError }}
+        </div>
+
+        <div class="security-badges">
+          <div class="badge">
+            <mat-icon>lock</mat-icon>
+            <span>Secure Payment</span>
+          </div>
+          <div class="badge">
+            <mat-icon>verified_user</mat-icon>
+            <span>256-bit SSL</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div *ngIf="paymentSuccess" class="success-message">
+      <mat-icon color="primary">check_circle</mat-icon>
+      <h3>Payment Successful!</h3>
+      <p>Your payment has been processed and funds are now in escrow.</p>
+    </div>
+
+    <div *ngIf="processing && !paymentSuccess" class="processing-message">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Processing your payment...</p>
+      <span>Please do not close this window</span>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()" [disabled]="processing || paymentSuccess">
+      Cancel
+    </button>
+    <button mat-raised-button color="primary"
+            (click)="processPayment()"
+            [disabled]="processing || paymentSuccess">
+      <mat-icon>payment</mat-icon>
+      {{ processing ? 'Processing...' : 'Pay $' + amount.toFixed(2) }}
+    </button>
+  </mat-dialog-actions>
+</div>
+

@@ -1,0 +1,276 @@
+<div class="job-detail-container">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading job details...</p>
+  </div>
+
+  <!-- Job Detail Content -->
+  <div class="job-detail-content" *ngIf="!loading && job">
+    <!-- Back Button -->
+    <button mat-button class="back-button" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Jobs
+    </button>
+
+    <!-- Main Job Card -->
+    <mat-card class="job-main-card">
+      <!-- Job Header -->
+      <div class="job-header">
+        <div class="title-section">
+          <h1>{{ job.title }}</h1>
+          <div class="job-status">
+            <mat-chip [highlighted]="true" [color]="getStatusColor(job.status)">
+              {{ getStatusLabel(job.status) }}
+            </mat-chip>
+            <mat-chip [highlighted]="true" color="accent">
+              {{ getLocationTypeLabel(job.locationType) }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <!-- Owner Actions -->
+        <div class="action-buttons" *ngIf="isOwner">
+          <button mat-raised-button color="primary" (click)="editJob()">
+            <mat-icon>edit</mat-icon>
+            Edit Job
+          </button>
+          <button mat-raised-button color="warn" (click)="deleteJob()">
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+        </div>
+
+        <!-- Freelancer Actions -->
+        <div class="action-buttons" *ngIf="!isOwner">
+          <button mat-raised-button color="primary" (click)="applyForJob()">
+            <mat-icon>send</mat-icon>
+            Apply Now
+          </button>
+          <button mat-stroked-button (click)="contactCustomer()">
+            <mat-icon>message</mat-icon>
+            Contact
+          </button>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Job Meta Information -->
+      <div class="job-meta-section">
+        <div class="meta-grid">
+          <div class="meta-card">
+            <mat-icon>{{ getCategoryIcon(job.category) }}</mat-icon>
+            <div class="meta-content">
+              <span class="meta-label">Category</span>
+              <span class="meta-value">{{ getCategoryName(job.category) }}</span>
+            </div>
+          </div>
+
+          <div class="meta-card">
+            <mat-icon>attach_money</mat-icon>
+            <div class="meta-content">
+              <span class="meta-label">Budget</span>
+              <span class="meta-value">{{ formatBudget(job) }}</span>
+            </div>
+          </div>
+
+          <div class="meta-card">
+            <mat-icon>event</mat-icon>
+            <div class="meta-content">
+              <span class="meta-label">Deadline</span>
+              <span class="meta-value">{{ job.deadline | date: 'MMM d, yyyy' }}</span>
+            </div>
+          </div>
+
+          <div class="meta-card">
+            <mat-icon>location_on</mat-icon>
+            <div class="meta-content">
+              <span class="meta-label">Location</span>
+              <span class="meta-value">{{ job.location }}</span>
+            </div>
+          </div>
+
+          <div class="meta-card">
+            <mat-icon>people</mat-icon>
+            <div class="meta-content">
+              <span class="meta-label">Applications</span>
+              <span class="meta-value">{{ job.applicationsCount }}</span>
+            </div>
+          </div>
+
+          <div class="meta-card">
+            <mat-icon>schedule</mat-icon>
+            <div class="meta-content">
+              <span class="meta-label">Posted</span>
+              <span class="meta-value">{{ job.createdAt | date: 'MMM d, yyyy' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Job Description -->
+      <div class="job-description-section">
+        <h2>
+          <mat-icon>description</mat-icon>
+          Job Description
+        </h2>
+        <p class="description-text">{{ job.description }}</p>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Required Skills -->
+      <div class="skills-section">
+        <h2>
+          <mat-icon>build</mat-icon>
+          Required Skills
+        </h2>
+        <mat-chip-set>
+          <mat-chip *ngFor="let skill of job.skills" [highlighted]="true">
+            {{ skill }}
+          </mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Customer Information -->
+      <div class="customer-section">
+        <h2>
+          <mat-icon>person</mat-icon>
+          About the Customer
+        </h2>
+        <div class="customer-card">
+          <div class="customer-avatar">
+            <img *ngIf="job.customerAvatar" [src]="job.customerAvatar" [alt]="job.customerName">
+            <mat-icon *ngIf="!job.customerAvatar">account_circle</mat-icon>
+          </div>
+          <div class="customer-info">
+            <h3>{{ job.customerName }}</h3>
+            <p>Member since {{ job.createdAt | date: 'MMMM yyyy' }}</p>
+          </div>
+          <button mat-raised-button color="primary" (click)="contactCustomer()" *ngIf="!isOwner">
+            <mat-icon>message</mat-icon>
+            Send Message
+          </button>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Reviews Section -->
+      <div class="reviews-section">
+        <div class="reviews-header">
+          <h2>
+            <mat-icon>star_rate</mat-icon>
+            Reviews & Ratings
+          </h2>
+
+          <!-- Write Review Button (Only for completed jobs) -->
+          <div class="review-actions" *ngIf="canWriteReview()">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="isOwner ? writeReviewAsCustomer() : writeReviewAsFreelancer()"
+              class="write-review-btn"
+            >
+              <mat-icon>rate_review</mat-icon>
+              {{ isOwner ? 'Review Freelancer' : 'Review Customer' }}
+            </button>
+          </div>
+        </div>
+
+        <mat-tab-group class="reviews-tabs">
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">assessment</mat-icon>
+              Overview
+            </ng-template>
+            <div class="tab-content">
+              <app-rating-summary
+                [targetId]="job.id"
+                [targetType]="'job'"
+                [showTitle]="false"
+              ></app-rating-summary>
+            </div>
+          </mat-tab>
+
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">reviews</mat-icon>
+              All Reviews
+            </ng-template>
+            <div class="tab-content">
+              <app-review-list
+                [jobId]="job.id"
+                [showJobTitle]="false"
+              ></app-review-list>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </mat-card>
+
+    <!-- Action Panel (Sticky on Desktop) -->
+    <div class="action-panel">
+      <mat-card>
+        <h3>Apply for this job</h3>
+        <div class="budget-highlight">
+          <mat-icon>attach_money</mat-icon>
+          <div>
+            <span class="budget-label">Project Budget</span>
+            <span class="budget-amount">{{ formatBudget(job) }}</span>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="deadline-info">
+          <mat-icon>event</mat-icon>
+          <div>
+            <span class="deadline-label">Application Deadline</span>
+            <span class="deadline-date">{{ job.deadline | date: 'MMMM d, yyyy' }}</span>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="applications-info">
+          <mat-icon>people</mat-icon>
+          <div>
+            <span class="count">{{ job.applicationsCount }}</span>
+            <span class="label">{{ job.applicationsCount === 1 ? 'Application' : 'Applications' }}</span>
+          </div>
+        </div>
+
+        <button
+          mat-raised-button
+          color="primary"
+          class="apply-button"
+          (click)="applyForJob()"
+          *ngIf="!isOwner">
+          <mat-icon>send</mat-icon>
+          Apply Now
+        </button>
+
+        <button
+          mat-raised-button
+          color="primary"
+          class="apply-button"
+          (click)="editJob()"
+          *ngIf="isOwner">
+          <mat-icon>edit</mat-icon>
+          Edit Job
+        </button>
+
+        <p class="info-text" *ngIf="!isOwner">
+          <mat-icon>info</mat-icon>
+          Submit your proposal to get noticed by the customer
+        </p>
+      </mat-card>
+    </div>
+  </div>
+</div>

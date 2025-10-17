@@ -1,0 +1,452 @@
+// Modern App Component Styles
+.spacer {
+  flex: 1 1 auto;
+}
+
+.container {
+  padding: var(--spacing-2xl);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Sidenav Container
+.sidenav-container {
+  height: 100vh;
+  background: var(--color-surface);
+}
+
+mat-sidenav {
+  width: 280px;
+  background: var(--color-background);
+  border-right: 1px solid var(--color-border);
+  box-shadow: none;
+}
+
+// Sidenav Header - Modern gradient
+.sidenav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg) var(--spacing-xl);
+  background: linear-gradient(135deg, var(--color-accent-600) 0%, var(--color-accent-700) 100%);
+  color: white;
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  button {
+    color: white;
+    opacity: 0.9;
+    transition: opacity var(--transition-fast);
+
+    &:hover {
+      opacity: 1;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+// User info section in sidebar
+.sidenav-user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  background-color: var(--color-gray-50);
+  border-bottom: 1px solid var(--color-border);
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: var(--color-accent-600);
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    strong {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    small {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+    }
+  }
+}
+
+// Navigation list items
+mat-nav-list {
+  padding: var(--spacing-md) var(--spacing-sm);
+
+  a[mat-list-item] {
+    color: var(--color-text-primary);
+    border-radius: var(--radius-md);
+    margin-bottom: 2px;
+    transition: all var(--transition-fast);
+    font-size: 14px;
+    font-weight: 500;
+    height: 44px;
+
+    mat-icon {
+      color: var(--color-text-secondary);
+      margin-right: var(--spacing-sm);
+    }
+
+    &:hover {
+      background-color: var(--color-gray-50);
+
+      mat-icon {
+        color: var(--color-accent-600);
+      }
+    }
+
+    &.active,
+    &.mdc-list-item--activated {
+      background-color: var(--color-accent-50);
+      color: var(--color-accent-700);
+
+      mat-icon {
+        color: var(--color-accent-600);
+      }
+    }
+  }
+}
+
+// App container
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-surface);
+}
+
+// Toolbar - Clean and minimal
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--color-background) !important;
+  color: var(--color-text-primary) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  box-shadow: none !important;
+  height: 64px !important;
+  backdrop-filter: blur(8px);
+}
+
+.toolbar-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  height: 100%;
+}
+
+// Menu button
+.menu-button {
+  margin-right: var(--spacing-sm);
+  color: var(--color-text-primary);
+
+  &:hover {
+    background-color: var(--color-gray-100);
+  }
+}
+
+// Logo
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  text-decoration: none;
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  transition: opacity var(--transition-fast);
+
+  mat-icon {
+    color: var(--color-accent-600);
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+// User menu
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+
+  .login-button {
+    height: 40px;
+    padding: 0 var(--spacing-lg);
+    background-color: var(--color-accent-600);
+    color: white;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background-color: var(--color-accent-700);
+      box-shadow: var(--shadow-sm);
+    }
+
+    mat-icon {
+      margin-right: var(--spacing-xs);
+    }
+  }
+
+  button[mat-icon-button] {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+}
+
+// User menu dropdown
+.user-info {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--spacing-xs);
+
+  strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  small {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+  }
+}
+
+// Main content area
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--color-surface);
+  padding: var(--spacing-xl);
+
+  @media (max-width: 768px) {
+    padding: var(--spacing-lg);
+  }
+}
+
+// Responsive design for main app layout
+@media (max-width: 1400px) {
+  .toolbar-content {
+    padding: 0 var(--spacing-md);
+  }
+
+  .container {
+    padding: var(--spacing-xl);
+  }
+}
+
+@media (max-width: 992px) {
+  mat-sidenav {
+    width: 260px;
+  }
+
+  .toolbar-content {
+    padding: 0 var(--spacing-md);
+  }
+
+  .container {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  .app-toolbar {
+    height: 56px !important;
+  }
+
+  .toolbar-content {
+    padding: 0 var(--spacing-sm);
+  }
+
+  mat-sidenav {
+    width: 280px; // Full width on mobile for better usability
+  }
+
+  .sidenav-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+
+    h2 {
+      font-size: 1.125rem;
+    }
+  }
+
+  .sidenav-user-info {
+    padding: var(--spacing-md) var(--spacing-lg);
+
+    mat-icon {
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+    }
+
+    div {
+      strong {
+        font-size: 13px;
+      }
+
+      small {
+        font-size: 11px;
+      }
+    }
+  }
+
+  mat-nav-list {
+    padding: var(--spacing-sm);
+
+    a[mat-list-item] {
+      font-size: 13px;
+      height: 40px;
+    }
+  }
+
+  .logo {
+    font-size: 1.125rem;
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .user-menu {
+    gap: var(--spacing-xs);
+
+    .login-button {
+      height: 36px;
+      padding: 0 var(--spacing-md);
+      font-size: 13px;
+    }
+
+    .user-avatar-button {
+      width: 36px;
+      height: 36px;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .container {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .app-toolbar {
+    height: 56px !important;
+  }
+
+  .toolbar-content {
+    padding: 0 var(--spacing-xs);
+  }
+
+  .menu-button {
+    margin-right: var(--spacing-xs);
+    width: 40px;
+    height: 40px;
+
+    mat-icon {
+      font-size: 22px;
+    }
+  }
+
+  .logo {
+    font-size: 1rem;
+
+    mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  mat-sidenav {
+    width: 100%; // Full screen on very small phones
+    max-width: 320px;
+  }
+
+  .user-menu {
+    .login-button {
+      padding: 0 var(--spacing-sm);
+      font-size: 12px;
+
+      span {
+        display: none; // Hide "Login" text on very small screens
+      }
+
+      mat-icon {
+        margin: 0;
+      }
+    }
+  }
+
+  .container {
+    padding: var(--spacing-sm);
+  }
+}
+
+// Touch-friendly improvements
+@media (hover: none) and (pointer: coarse) {
+  mat-nav-list {
+    a[mat-list-item] {
+      height: 48px; // Larger touch targets
+      min-height: 48px;
+    }
+  }
+
+  .menu-button {
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .user-menu {
+    .login-button,
+    .user-avatar-button {
+      min-height: 44px;
+    }
+  }
+}

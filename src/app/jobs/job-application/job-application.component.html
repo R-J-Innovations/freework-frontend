@@ -1,0 +1,214 @@
+<div class="application-container container">
+  <div class="application-wrapper">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading job details...</p>
+    </div>
+
+    <!-- Application Form -->
+    <div *ngIf="!loading && job" class="application-content">
+      <!-- Header -->
+      <div class="application-header">
+        <button mat-icon-button (click)="cancel()" class="back-button">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="header-content">
+          <h1>Apply for Position</h1>
+          <p class="subtitle">Submit your application to work on this project</p>
+        </div>
+      </div>
+
+      <!-- Job Summary Card -->
+      <mat-card class="job-summary-card elevation-2">
+        <mat-card-header>
+          <mat-card-title>{{ job.title }}</mat-card-title>
+          <mat-card-subtitle>Posted by {{ job.customerName }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="job-info-grid">
+            <div class="info-item">
+              <mat-icon>attach_money</mat-icon>
+              <div>
+                <span class="info-label">Budget</span>
+                <span class="info-value">${{ job.budget }} {{ job.budgetType === 'HOURLY' ? '/hr' : '' }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>schedule</mat-icon>
+              <div>
+                <span class="info-label">Deadline</span>
+                <span class="info-value">{{ job.deadline | date: 'MMM d, y' }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>location_on</mat-icon>
+              <div>
+                <span class="info-label">Location</span>
+                <span class="info-value">{{ job.locationType }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <mat-icon>category</mat-icon>
+              <div>
+                <span class="info-label">Category</span>
+                <span class="info-value">{{ job.category }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="skills-section" *ngIf="job.skills && job.skills.length > 0">
+            <span class="skills-label">Required Skills:</span>
+            <mat-chip-set class="skills-chips">
+              <mat-chip *ngFor="let skill of job.skills">{{ skill }}</mat-chip>
+            </mat-chip-set>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Already Applied Warning -->
+      <mat-card *ngIf="hasAlreadyApplied" class="warning-card">
+        <mat-card-content>
+          <div class="warning-content">
+            <mat-icon>info</mat-icon>
+            <div>
+              <strong>You have already applied to this job</strong>
+              <p>You can view your application status in your applications list.</p>
+            </div>
+          </div>
+          <button mat-raised-button color="primary" routerLink="/jobs/my-applications">
+            View My Applications
+          </button>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Application Form Card -->
+      <mat-card class="application-form-card" *ngIf="!hasAlreadyApplied">
+        <mat-card-header>
+          <mat-card-title>Your Application</mat-card-title>
+          <mat-card-subtitle>Tell the client why you're the perfect fit</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()">
+            <!-- Cover Letter -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Cover Letter *</mat-label>
+              <textarea
+                matInput
+                formControlName="coverLetter"
+                rows="8"
+                placeholder="Introduce yourself and explain why you're the best candidate for this project. Highlight your relevant experience and skills."
+              ></textarea>
+              <mat-hint align="end">{{ getCharacterCount('coverLetter') }}</mat-hint>
+              <mat-error *ngIf="applicationForm.get('coverLetter')?.hasError('required')">
+                Cover letter is required
+              </mat-error>
+              <mat-error *ngIf="applicationForm.get('coverLetter')?.hasError('minlength')">
+                Cover letter must be at least 100 characters
+              </mat-error>
+              <mat-error *ngIf="applicationForm.get('coverLetter')?.hasError('maxlength')">
+                Cover letter cannot exceed 2000 characters
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Message to Client -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Message to Client *</mat-label>
+              <textarea
+                matInput
+                formControlName="message"
+                rows="4"
+                placeholder="Send a brief message to the client about your interest in this project."
+              ></textarea>
+              <mat-hint align="end">{{ getCharacterCount('message') }}</mat-hint>
+              <mat-error *ngIf="applicationForm.get('message')?.hasError('required')">
+                Message is required
+              </mat-error>
+              <mat-error *ngIf="applicationForm.get('message')?.hasError('minlength')">
+                Message must be at least 50 characters
+              </mat-error>
+              <mat-error *ngIf="applicationForm.get('message')?.hasError('maxlength')">
+                Message cannot exceed 500 characters
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Portfolio Link -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Portfolio Link</mat-label>
+              <input
+                matInput
+                formControlName="portfolioLink"
+                placeholder="https://your-portfolio.com"
+                type="url"
+              >
+              <mat-icon matPrefix>link</mat-icon>
+              <mat-hint>Share a link to your portfolio, GitHub, or relevant work samples</mat-hint>
+              <mat-error *ngIf="applicationForm.get('portfolioLink')?.hasError('pattern')">
+                Please enter a valid URL starting with http:// or https://
+              </mat-error>
+            </mat-form-field>
+
+            <div class="form-row">
+              <!-- Proposed Rate -->
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Proposed Rate</mat-label>
+                <input
+                  matInput
+                  formControlName="proposedRate"
+                  type="number"
+                  placeholder="0"
+                >
+                <span matPrefix>$&nbsp;</span>
+                <span matSuffix *ngIf="job.budgetType === 'HOURLY'">/hr</span>
+                <mat-hint>Your rate for this project (optional)</mat-hint>
+                <mat-error *ngIf="applicationForm.get('proposedRate')?.hasError('min')">
+                  Rate must be positive
+                </mat-error>
+              </mat-form-field>
+
+              <!-- Estimated Duration -->
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Estimated Duration</mat-label>
+                <input
+                  matInput
+                  formControlName="estimatedDuration"
+                  placeholder="e.g., 2 weeks, 1 month"
+                >
+                <mat-icon matPrefix>schedule</mat-icon>
+                <mat-hint>How long you estimate this project will take</mat-hint>
+                <mat-error *ngIf="applicationForm.get('estimatedDuration')?.hasError('maxlength')">
+                  Duration cannot exceed 100 characters
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="cancel()"
+                [disabled]="submitting"
+              >
+                <mat-icon>close</mat-icon>
+                Cancel
+              </button>
+
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="applicationForm.invalid || submitting"
+              >
+                <mat-spinner diameter="20" *ngIf="submitting"></mat-spinner>
+                <mat-icon *ngIf="!submitting">send</mat-icon>
+                {{ submitting ? 'Submitting...' : 'Submit Application' }}
+              </button>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

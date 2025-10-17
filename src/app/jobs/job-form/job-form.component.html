@@ -1,0 +1,191 @@
+<div class="job-form-container">
+  <mat-card class="job-form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>{{ isEditMode ? 'edit' : 'add_circle' }}</mat-icon>
+        {{ isEditMode ? 'Edit Job' : 'Post a New Job' }}
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditMode ? 'Update your job posting' : 'Fill in the details to post your job' }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="jobForm" (ngSubmit)="onSubmit()">
+
+        <!-- Job Title -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Job Title</mat-label>
+          <input
+            matInput
+            formControlName="title"
+            placeholder="e.g., Full Stack Developer for E-commerce Platform"
+            maxlength="100">
+          <mat-icon matPrefix>work</mat-icon>
+          <mat-hint align="end">{{ f['title'].value?.length || 0 }}/100</mat-hint>
+          <mat-error *ngIf="f['title'].hasError('required')">Job title is required</mat-error>
+          <mat-error *ngIf="f['title'].hasError('minlength')">Minimum 10 characters required</mat-error>
+        </mat-form-field>
+
+        <!-- Category -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category">
+            <mat-option *ngFor="let category of categories" [value]="category.id">
+              <mat-icon>{{ category.icon }}</mat-icon>
+              {{ category.name }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>category</mat-icon>
+          <mat-error *ngIf="f['category'].hasError('required')">Category is required</mat-error>
+        </mat-form-field>
+
+        <!-- Description -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Job Description</mat-label>
+          <textarea
+            matInput
+            formControlName="description"
+            rows="8"
+            placeholder="Describe the project, requirements, deliverables, and any other important details..."
+            maxlength="5000"></textarea>
+          <mat-icon matPrefix>description</mat-icon>
+          <mat-hint align="end">{{ f['description'].value?.length || 0 }}/5000</mat-hint>
+          <mat-error *ngIf="f['description'].hasError('required')">Description is required</mat-error>
+          <mat-error *ngIf="f['description'].hasError('minlength')">Minimum 50 characters required</mat-error>
+        </mat-form-field>
+
+        <!-- Budget and Budget Type Row -->
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Budget Amount</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="budget"
+              placeholder="1000"
+              min="1">
+            <span matTextPrefix>$&nbsp;</span>
+            <mat-icon matPrefix>attach_money</mat-icon>
+            <mat-error *ngIf="f['budget'].hasError('required')">Budget is required</mat-error>
+            <mat-error *ngIf="f['budget'].hasError('min')">Budget must be at least $1</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Budget Type</mat-label>
+            <mat-select formControlName="budgetType">
+              <mat-option value="FIXED">Fixed Price</mat-option>
+              <mat-option value="HOURLY">Hourly Rate</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>payment</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Deadline -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Project Deadline</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            formControlName="deadline"
+            [min]="minDate"
+            placeholder="Select deadline">
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-icon matPrefix>event</mat-icon>
+          <mat-error *ngIf="f['deadline'].hasError('required')">Deadline is required</mat-error>
+        </mat-form-field>
+
+        <!-- Location and Location Type -->
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Location</mat-label>
+            <input
+              matInput
+              formControlName="location"
+              placeholder="e.g., New York, USA"
+              maxlength="100">
+            <mat-icon matPrefix>location_on</mat-icon>
+            <mat-error *ngIf="f['location'].hasError('required')">Location is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Work Type</mat-label>
+            <mat-select formControlName="locationType">
+              <mat-option value="REMOTE">Remote</mat-option>
+              <mat-option value="ONSITE">On-site</mat-option>
+              <mat-option value="HYBRID">Hybrid</mat-option>
+            </mat-select>
+            <mat-icon matPrefix>work_outline</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="skills-section">
+          <label class="section-label">
+            <mat-icon>build</mat-icon>
+            Required Skills
+          </label>
+
+          <!-- Selected Skills -->
+          <mat-chip-set class="skills-chips" *ngIf="selectedSkills.length > 0">
+            <mat-chip
+              *ngFor="let skill of selectedSkills"
+              (removed)="removeSkill(skill)"
+              [highlighted]="true">
+              {{ skill }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+          </mat-chip-set>
+
+          <!-- Skill Input with Autocomplete -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Add Skills</mat-label>
+            <input
+              matInput
+              formControlName="skillInput"
+              [matAutocomplete]="auto"
+              placeholder="Type to search skills...">
+            <mat-icon matPrefix>search</mat-icon>
+            <mat-autocomplete
+              #auto="matAutocomplete"
+              (optionSelected)="onSkillSelected($event.option.value)">
+              <mat-option *ngFor="let skill of filteredSkills | async" [value]="skill">
+                {{ skill }}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <p class="hint-text" *ngIf="selectedSkills.length === 0">
+            <mat-icon>info</mat-icon>
+            Add at least one skill required for this job
+          </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button
+            mat-button
+            type="button"
+            (click)="cancel()"
+            [disabled]="loading">
+            Cancel
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="loading">
+            <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
+            <span *ngIf="!loading">
+              <mat-icon>{{ isEditMode ? 'save' : 'publish' }}</mat-icon>
+              {{ isEditMode ? 'Update Job' : 'Post Job' }}
+            </span>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

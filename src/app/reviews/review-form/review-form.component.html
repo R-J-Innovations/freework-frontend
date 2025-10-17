@@ -1,0 +1,165 @@
+<div class="review-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>rate_review</mat-icon>
+        Write a Review for {{ revieweeName }}
+      </mat-card-title>
+      <mat-card-subtitle>Share your experience working together</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Star Rating -->
+      <div class="rating-section">
+        <label class="section-label">Overall Rating *</label>
+        <div class="star-rating">
+          <button
+            *ngFor="let star of [1, 2, 3, 4, 5]"
+            type="button"
+            mat-icon-button
+            class="star-button"
+            [class.active]="star <= rating"
+            (click)="setRating(star)"
+            (mouseenter)="setHoveredRating(star)"
+            (mouseleave)="clearHoveredRating()"
+          >
+            <mat-icon [color]="getStarColor(star)">
+              {{ getStarIcon(star) }}
+            </mat-icon>
+          </button>
+        </div>
+        <div class="rating-text" *ngIf="rating > 0">
+          <span *ngIf="rating === 5">Excellent!</span>
+          <span *ngIf="rating === 4">Very Good</span>
+          <span *ngIf="rating === 3">Good</span>
+          <span *ngIf="rating === 2">Fair</span>
+          <span *ngIf="rating === 1">Poor</span>
+        </div>
+      </div>
+
+      <!-- Review Title -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Review Title *</mat-label>
+        <input matInput [(ngModel)]="title" placeholder="Summarize your experience" maxlength="100">
+        <mat-hint align="end">{{ title.length }}/100</mat-hint>
+      </mat-form-field>
+
+      <!-- Review Comment -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Your Review *</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="comment"
+          rows="6"
+          placeholder="Describe your experience in detail (minimum 20 characters)"
+          maxlength="1000"
+        ></textarea>
+        <mat-hint align="end">{{ comment.length }}/1000 (minimum 20 characters)</mat-hint>
+      </mat-form-field>
+
+      <!-- Pros Section -->
+      <div class="pros-cons-section">
+        <label class="section-label">
+          <mat-icon class="section-icon positive">thumb_up</mat-icon>
+          What went well? (Optional)
+        </label>
+
+        <div class="input-with-button">
+          <mat-form-field appearance="outline" class="flex-field">
+            <mat-label>Add a positive point</mat-label>
+            <input
+              matInput
+              [(ngModel)]="currentPro"
+              (keyup.enter)="addPro()"
+              placeholder="e.g., Great communication"
+            >
+          </mat-form-field>
+          <button mat-raised-button color="primary" (click)="addPro()" [disabled]="!currentPro.trim()">
+            <mat-icon>add</mat-icon>
+            Add
+          </button>
+        </div>
+
+        <div class="chips-container" *ngIf="pros.length > 0">
+          <mat-chip-set>
+            <mat-chip *ngFor="let pro of pros; let i = index" (removed)="removePro(i)">
+              <mat-icon class="chip-icon positive">check_circle</mat-icon>
+              {{ pro }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </div>
+
+      <!-- Cons Section -->
+      <div class="pros-cons-section">
+        <label class="section-label">
+          <mat-icon class="section-icon negative">thumb_down</mat-icon>
+          What could be improved? (Optional)
+        </label>
+
+        <div class="input-with-button">
+          <mat-form-field appearance="outline" class="flex-field">
+            <mat-label>Add an area for improvement</mat-label>
+            <input
+              matInput
+              [(ngModel)]="currentCon"
+              (keyup.enter)="addCon()"
+              placeholder="e.g., Missed a few deadlines"
+            >
+          </mat-form-field>
+          <button mat-raised-button color="accent" (click)="addCon()" [disabled]="!currentCon.trim()">
+            <mat-icon>add</mat-icon>
+            Add
+          </button>
+        </div>
+
+        <div class="chips-container" *ngIf="cons.length > 0">
+          <mat-chip-set>
+            <mat-chip *ngFor="let con of cons; let i = index" (removed)="removeCon(i)">
+              <mat-icon class="chip-icon negative">info</mat-icon>
+              {{ con }}
+              <button matChipRemove>
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </div>
+
+      <!-- Guidelines -->
+      <div class="guidelines">
+        <mat-icon>info</mat-icon>
+        <div class="guidelines-text">
+          <strong>Review Guidelines:</strong>
+          <ul>
+            <li>Be honest and constructive</li>
+            <li>Focus on your actual experience</li>
+            <li>Avoid personal attacks or offensive language</li>
+            <li>Provide specific examples when possible</li>
+          </ul>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button (click)="resetForm()" [disabled]="submitting">
+        Cancel
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="submitReview()"
+        [disabled]="!canSubmit() || submitting"
+        [matTooltip]="!canSubmit() ? getValidationMessage() : 'Submit your review'"
+        matTooltipPosition="above"
+      >
+        <mat-spinner *ngIf="submitting" diameter="20" class="button-spinner"></mat-spinner>
+        <mat-icon *ngIf="!submitting">send</mat-icon>
+        {{ submitting ? 'Submitting...' : 'Submit Review' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

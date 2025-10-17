@@ -1,0 +1,345 @@
+<div class="my-active-jobs-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        <mat-icon>work</mat-icon>
+        My Active Jobs
+      </h1>
+      <p class="subtitle" *ngIf="!isCustomer">View and manage jobs where your application has been accepted</p>
+      <p class="subtitle" *ngIf="isCustomer">Monitor and manage jobs you've posted that are in progress</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/jobs" *ngIf="!isCustomer">
+      <mat-icon>search</mat-icon>
+      Browse More Jobs
+    </button>
+    <button mat-raised-button color="primary" routerLink="/jobs/new" *ngIf="isCustomer">
+      <mat-icon>add</mat-icon>
+      Post New Job
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading your active jobs...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <h3>{{ error }}</h3>
+    <button mat-raised-button color="primary" (click)="loadActiveJobs()">
+      <mat-icon>refresh</mat-icon>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Empty State for Freelancers -->
+  <div *ngIf="!loading && !error && !isCustomer && activeJobs.length === 0" class="empty-state">
+    <mat-icon>work_off</mat-icon>
+    <h2>No Active Jobs Yet</h2>
+    <p>You don't have any accepted job applications at the moment.</p>
+    <p>Start by browsing available jobs and submitting applications!</p>
+    <button mat-raised-button color="primary" routerLink="/jobs">
+      <mat-icon>search</mat-icon>
+      Browse Jobs
+    </button>
+  </div>
+
+  <!-- Empty State for Customers -->
+  <div *ngIf="!loading && !error && isCustomer && customerJobs.length === 0" class="empty-state">
+    <mat-icon>work_off</mat-icon>
+    <h2>No Active Jobs</h2>
+    <p>You don't have any jobs in progress at the moment.</p>
+    <p>Post a job to find talented freelancers!</p>
+    <button mat-raised-button color="primary" routerLink="/jobs/new">
+      <mat-icon>add</mat-icon>
+      Post a Job
+    </button>
+  </div>
+
+  <!-- Active Jobs List for Freelancers -->
+  <div *ngIf="!loading && !error && !isCustomer && activeJobs.length > 0" class="jobs-list">
+    <div class="jobs-summary">
+      <mat-icon>analytics</mat-icon>
+      <span>You have <strong>{{ activeJobs.length }}</strong> active {{ activeJobs.length === 1 ? 'job' : 'jobs' }}</span>
+    </div>
+
+    <mat-card *ngFor="let activeJob of activeJobs" class="job-card">
+      <mat-card-header>
+        <div mat-card-avatar class="job-avatar">
+          <img [src]="activeJob.job.customerAvatar" [alt]="activeJob.job.customerName" />
+        </div>
+        <mat-card-title>
+          <a [routerLink]="['/jobs', activeJob.job.id]" class="job-title-link">
+            {{ activeJob.job.title }}
+          </a>
+        </mat-card-title>
+        <mat-card-subtitle>
+          <mat-icon>business</mat-icon>
+          {{ activeJob.job.customerName }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="job-info-grid">
+          <!-- Job Status -->
+          <div class="info-item status-item">
+            <div class="info-label">
+              <mat-icon>assignment</mat-icon>
+              Job Status
+            </div>
+            <mat-chip-set>
+              <mat-chip
+                [highlighted]="true"
+                [color]="getStatusColor(activeJob.job.status)">
+                <mat-icon>{{ getStatusIcon(activeJob.job.status) }}</mat-icon>
+                {{ getStatusLabel(activeJob.job.status) }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+
+          <!-- Budget -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>payments</mat-icon>
+              Budget
+            </div>
+            <div class="info-value budget-value">
+              {{ formatBudget(activeJob.job) }}
+            </div>
+          </div>
+
+          <!-- Your Proposed Rate -->
+          <div class="info-item" *ngIf="activeJob.application.proposedRate">
+            <div class="info-label">
+              <mat-icon>local_offer</mat-icon>
+              Your Rate
+            </div>
+            <div class="info-value">
+              ${{ activeJob.application.proposedRate }}{{ activeJob.job.budgetType === 'HOURLY' ? '/hr' : '' }}
+            </div>
+          </div>
+
+          <!-- Deadline -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>event</mat-icon>
+              Deadline
+            </div>
+            <div class="info-value deadline-value"
+                 [class.urgent]="getDeadlineWarning(activeJob.job.deadline) === 'urgent'"
+                 [class.warning]="getDeadlineWarning(activeJob.job.deadline) === 'warning'">
+              {{ formatDate(activeJob.job.deadline) }}
+              <span class="days-remaining" *ngIf="calculateDaysUntilDeadline(activeJob.job.deadline) >= 0">
+                ({{ calculateDaysUntilDeadline(activeJob.job.deadline) }} days remaining)
+              </span>
+              <span class="overdue" *ngIf="calculateDaysUntilDeadline(activeJob.job.deadline) < 0">
+                (OVERDUE)
+              </span>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>place</mat-icon>
+              Location
+            </div>
+            <div class="info-value">
+              {{ activeJob.job.location }}
+            </div>
+          </div>
+
+          <!-- Accepted Date -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>check_circle</mat-icon>
+              Accepted On
+            </div>
+            <div class="info-value">
+              {{ formatDate(activeJob.application.updatedAt) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="skills-section">
+          <div class="skills-label">
+            <mat-icon>code</mat-icon>
+            Required Skills
+          </div>
+          <mat-chip-set>
+            <mat-chip *ngFor="let skill of activeJob.job.skills">
+              {{ skill }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+
+        <!-- Estimated Duration -->
+        <div class="duration-section" *ngIf="activeJob.application.estimatedDuration">
+          <mat-icon>schedule</mat-icon>
+          <strong>Your Estimated Duration:</strong> {{ activeJob.application.estimatedDuration }}
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button color="primary" [routerLink]="['/jobs', activeJob.job.id]">
+          <mat-icon>visibility</mat-icon>
+          View Details
+        </button>
+        <button mat-button (click)="messageClient(activeJob.job.customerId, activeJob.job.customerName, activeJob.job.title)">
+          <mat-icon>chat</mat-icon>
+          Message Client
+        </button>
+        <button mat-button *ngIf="activeJob.job.status === 'COMPLETED'" (click)="writeReview(activeJob)">
+          <mat-icon>rate_review</mat-icon>
+          Write Review
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Active Jobs List for Customers -->
+  <div *ngIf="!loading && !error && isCustomer && customerJobs.length > 0" class="jobs-list">
+    <div class="jobs-summary">
+      <mat-icon>analytics</mat-icon>
+      <span>You have <strong>{{ customerJobs.length }}</strong> active {{ customerJobs.length === 1 ? 'job' : 'jobs' }}</span>
+    </div>
+
+    <mat-card *ngFor="let job of customerJobs" class="job-card">
+      <mat-card-header>
+        <mat-card-title>
+          <a [routerLink]="['/jobs', job.id]" class="job-title-link">
+            {{ job.title }}
+          </a>
+        </mat-card-title>
+        <mat-card-subtitle>
+          <mat-icon>category</mat-icon>
+          {{ job.category }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="job-info-grid">
+          <!-- Job Status -->
+          <div class="info-item status-item">
+            <div class="info-label">
+              <mat-icon>assignment</mat-icon>
+              Status
+            </div>
+            <mat-chip-set>
+              <mat-chip
+                [highlighted]="true"
+                [color]="getStatusColor(job.status)">
+                <mat-icon>{{ getStatusIcon(job.status) }}</mat-icon>
+                {{ getStatusLabel(job.status) }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+
+          <!-- Budget -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>payments</mat-icon>
+              Budget
+            </div>
+            <div class="info-value budget-value">
+              {{ formatBudget(job) }}
+            </div>
+          </div>
+
+          <!-- Applications Count -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>people</mat-icon>
+              Applications
+            </div>
+            <div class="info-value">
+              <mat-chip [highlighted]="true" color="primary">
+                {{ job.applicationsCount }}
+              </mat-chip>
+            </div>
+          </div>
+
+          <!-- Deadline -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>event</mat-icon>
+              Deadline
+            </div>
+            <div class="info-value deadline-value"
+                 [class.urgent]="getDeadlineWarning(job.deadline) === 'urgent'"
+                 [class.warning]="getDeadlineWarning(job.deadline) === 'warning'">
+              {{ formatDate(job.deadline) }}
+              <span class="days-remaining" *ngIf="calculateDaysUntilDeadline(job.deadline) >= 0">
+                ({{ calculateDaysUntilDeadline(job.deadline) }} days remaining)
+              </span>
+              <span class="overdue" *ngIf="calculateDaysUntilDeadline(job.deadline) < 0">
+                (OVERDUE)
+              </span>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>place</mat-icon>
+              Location
+            </div>
+            <div class="info-value">
+              {{ job.location }} <mat-chip>{{ job.locationType }}</mat-chip>
+            </div>
+          </div>
+
+          <!-- Posted Date -->
+          <div class="info-item">
+            <div class="info-label">
+              <mat-icon>calendar_today</mat-icon>
+              Posted On
+            </div>
+            <div class="info-value">
+              {{ formatDate(job.createdAt) }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="skills-section">
+          <div class="skills-label">
+            <mat-icon>code</mat-icon>
+            Required Skills
+          </div>
+          <mat-chip-set>
+            <mat-chip *ngFor="let skill of job.skills">
+              {{ skill }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+
+        <!-- Description Preview -->
+        <div class="description-preview">
+          <p>{{ job.description.length > 150 ? (job.description | slice:0:150) + '...' : job.description }}</p>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button color="primary" [routerLink]="['/jobs', job.id]">
+          <mat-icon>visibility</mat-icon>
+          View Details
+        </button>
+        <button mat-button [routerLink]="['/jobs', job.id, 'applications']">
+          <mat-icon>people</mat-icon>
+          View Applications
+          <mat-chip *ngIf="job.applicationsCount > 0" [highlighted]="true" color="accent">
+            {{ job.applicationsCount }}
+          </mat-chip>
+        </button>
+        <button mat-button [routerLink]="['/jobs/edit', job.id]">
+          <mat-icon>edit</mat-icon>
+          Edit Job
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,208 @@
+.review-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+  }
+}
+
+.rating-section {
+  margin-bottom: 2rem;
+
+  .section-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  .star-rating {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+
+    .star-button {
+      width: 48px;
+      height: 48px;
+      transition: transform 0.2s;
+
+      &:hover {
+        transform: scale(1.2);
+      }
+
+      mat-icon {
+        font-size: 2rem;
+        width: 2rem;
+        height: 2rem;
+      }
+
+      &.active mat-icon {
+        animation: starPop 0.3s ease-out;
+      }
+    }
+  }
+
+  .rating-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #1976d2;
+  }
+}
+
+@keyframes starPop {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.pros-cons-section {
+  margin-bottom: 2rem;
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+
+    .section-icon {
+      &.positive {
+        color: #4caf50;
+      }
+
+      &.negative {
+        color: #ff9800;
+      }
+    }
+  }
+
+  .input-with-button {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+
+    .flex-field {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    button {
+      margin-top: 0.5rem;
+    }
+  }
+
+  .chips-container {
+    margin-top: 1rem;
+
+    mat-chip {
+      margin: 0.25rem;
+
+      .chip-icon {
+        font-size: 1rem;
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.25rem;
+
+        &.positive {
+          color: #4caf50;
+        }
+
+        &.negative {
+          color: #ff9800;
+        }
+      }
+    }
+  }
+}
+
+.guidelines {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: #e3f2fd;
+  border-radius: 8px;
+  margin-top: 2rem;
+
+  mat-icon {
+    color: #1976d2;
+  }
+
+  .guidelines-text {
+    flex: 1;
+
+    strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #1976d2;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.5rem;
+      font-size: 0.875rem;
+      color: rgba(0, 0, 0, 0.7);
+
+      li {
+        margin-bottom: 0.25rem;
+      }
+    }
+  }
+}
+
+mat-card-actions {
+  padding: 1rem 1.5rem;
+
+  button {
+    min-width: 120px;
+
+    .button-spinner {
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+
+    mat-icon {
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .review-form-container {
+    padding: 0.5rem;
+  }
+
+  .input-with-button {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+      margin-top: 0.5rem !important;
+    }
+  }
+
+  .rating-section .star-rating .star-button {
+    width: 40px;
+    height: 40px;
+
+    mat-icon {
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+}
+

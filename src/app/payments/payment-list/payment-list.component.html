@@ -1,0 +1,145 @@
+<div class="payment-list-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>account_balance</mat-icon>
+        Payment History
+      </mat-card-title>
+      <mat-card-subtitle>View and manage all your payments</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Summary Cards -->
+      <div class="summary-cards">
+        <div class="summary-card">
+          <mat-icon color="accent">lock</mat-icon>
+          <div class="summary-info">
+            <span class="label">Escrowed</span>
+            <span class="value">{{ getEscrowedCount() }}</span>
+          </div>
+        </div>
+        <div class="summary-card">
+          <mat-icon color="primary">check_circle</mat-icon>
+          <div class="summary-info">
+            <span class="label">Released</span>
+            <span class="value">{{ getReleasedCount() }}</span>
+          </div>
+        </div>
+        <div class="summary-card">
+          <mat-icon color="warn">schedule</mat-icon>
+          <div class="summary-info">
+            <span class="label">Pending</span>
+            <span class="value">{{ getPendingCount() }}</span>
+          </div>
+        </div>
+        <div class="summary-card total">
+          <mat-icon>attach_money</mat-icon>
+          <div class="summary-info">
+            <span class="label">Total Amount</span>
+            <span class="value">${{ getTotalAmount().toFixed(2) }}</span>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Filters -->
+  <mat-card class="filters-card">
+    <mat-tab-group (selectedTabChange)="onTabChange($event.index)">
+      <mat-tab label="All Payments">
+        <ng-template mat-tab-label>
+          All <span class="badge">{{ payments.length }}</span>
+        </ng-template>
+      </mat-tab>
+      <mat-tab label="Escrowed">
+        <ng-template mat-tab-label>
+          Escrowed <span class="badge">{{ getEscrowedCount() }}</span>
+        </ng-template>
+      </mat-tab>
+      <mat-tab label="Released">
+        <ng-template mat-tab-label>
+          Released <span class="badge">{{ getReleasedCount() }}</span>
+        </ng-template>
+      </mat-tab>
+      <mat-tab label="Pending">
+        <ng-template mat-tab-label>
+          Pending <span class="badge">{{ getPendingCount() }}</span>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>
+
+  <!-- Payments List -->
+  <mat-card class="payments-card">
+    <div *ngIf="loading" class="loading-state">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading payments...</p>
+    </div>
+
+    <div *ngIf="!loading && filteredPayments.length > 0" class="payments-list">
+      <div *ngFor="let payment of filteredPayments" class="payment-row">
+        <div class="payment-main">
+          <div class="payment-icon">
+            <mat-icon [color]="getStatusColor(payment.status)">
+              {{ getStatusIcon(payment.status) }}
+            </mat-icon>
+          </div>
+
+          <div class="payment-details">
+            <h3 class="payment-job">{{ payment.jobTitle }}</h3>
+            <div class="payment-meta">
+              <span class="payment-id">{{ payment.id }}</span>
+              <span class="separator">•</span>
+              <span class="payment-date">{{ payment.createdAt | date:'mediumDate' }}</span>
+            </div>
+            <div class="payment-participants">
+              <span><mat-icon>person</mat-icon> Customer: {{ payment.customerName }}</span>
+              <span><mat-icon>engineering</mat-icon> Freelancer: {{ payment.freelancerName }}</span>
+            </div>
+          </div>
+
+          <div class="payment-amount">
+            <span class="amount">${{ payment.amount.toFixed(2) }}</span>
+            <span class="currency">{{ payment.currency }}</span>
+          </div>
+
+          <div class="payment-status-chip">
+            <mat-chip [color]="getStatusColor(payment.status)">
+              {{ payment.status }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <div class="payment-extra">
+          <div class="payment-info">
+            <div class="info-item">
+              <mat-icon>payment</mat-icon>
+              <span>{{ payment.paymentMethod }}</span>
+            </div>
+            <div class="info-item">
+              <mat-icon>category</mat-icon>
+              <span>{{ payment.paymentType }}</span>
+            </div>
+            <div class="info-item" *ngIf="payment.transactionId">
+              <mat-icon>receipt</mat-icon>
+              <span>{{ payment.transactionId }}</span>
+            </div>
+          </div>
+
+          <div class="payment-actions">
+            <button mat-button color="primary" [routerLink]="['/jobs', payment.jobId]">
+              <mat-icon>visibility</mat-icon>
+              View Job
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && filteredPayments.length === 0" class="empty-state">
+      <mat-icon>account_balance_wallet</mat-icon>
+      <h3>No Payments Found</h3>
+      <p>You don't have any payments matching the selected filter.</p>
+    </div>
+  </mat-card>
+</div>

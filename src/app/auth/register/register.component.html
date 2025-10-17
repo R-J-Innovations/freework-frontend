@@ -1,0 +1,164 @@
+<div class="register-container">
+  <mat-card class="register-card">
+    <mat-card-header>
+      <mat-card-title>Join Freework</mat-card-title>
+      <mat-card-subtitle>Create your account to get started</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Registration Form -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+        <!-- Name Fields Row -->
+        <div class="name-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>First Name</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="firstName"
+              placeholder="John"
+              autocomplete="given-name">
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error *ngIf="f['firstName'].hasError('required')">
+              First name is required
+            </mat-error>
+            <mat-error *ngIf="f['firstName'].hasError('minlength')">
+              At least 2 characters required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Last Name</mat-label>
+            <input
+              matInput
+              type="text"
+              formControlName="lastName"
+              placeholder="Doe"
+              autocomplete="family-name">
+            <mat-error *ngIf="f['lastName'].hasError('required')">
+              Last name is required
+            </mat-error>
+            <mat-error *ngIf="f['lastName'].hasError('minlength')">
+              At least 2 characters required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Email Field -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="your@email.com"
+            autocomplete="email">
+          <mat-icon matPrefix>email</mat-icon>
+          <mat-error *ngIf="f['email'].hasError('required')">
+            Email is required
+          </mat-error>
+          <mat-error *ngIf="f['email'].hasError('email')">
+            Please enter a valid email
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Password Field -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="password"
+            placeholder="Create a strong password"
+            autocomplete="new-password">
+          <mat-icon matPrefix>lock</mat-icon>
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="hidePassword = !hidePassword"
+            [attr.aria-label]="'Hide password'">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="f['password'].hasError('required')">
+            Password is required
+          </mat-error>
+          <mat-error *ngIf="f['password'].hasError('minlength')">
+            Password must be at least 6 characters
+          </mat-error>
+          <mat-error *ngIf="f['password'].hasError('pattern')">
+            Password must contain uppercase, lowercase, and number
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Confirm Password Field -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirm Password</mat-label>
+          <input
+            matInput
+            [type]="hideConfirmPassword ? 'password' : 'text'"
+            formControlName="confirmPassword"
+            placeholder="Re-enter your password"
+            autocomplete="new-password">
+          <mat-icon matPrefix>lock</mat-icon>
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="hideConfirmPassword = !hideConfirmPassword"
+            [attr.aria-label]="'Hide password'">
+            <mat-icon>{{hideConfirmPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="f['confirmPassword'].hasError('required')">
+            Please confirm your password
+          </mat-error>
+          <mat-error *ngIf="registerForm.hasError('passwordMismatch') && f['confirmPassword'].touched">
+            Passwords do not match
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Role Selection -->
+        <div class="role-section">
+          <label class="role-label">I want to:</label>
+          <mat-radio-group formControlName="role" class="role-group">
+            <mat-radio-button value="FREELANCER" class="role-option">
+              <div class="role-content">
+                <mat-icon>work</mat-icon>
+                <div>
+                  <strong>Find Work</strong>
+                  <p>I'm a freelancer looking for projects</p>
+                </div>
+              </div>
+            </mat-radio-button>
+            <mat-radio-button value="CUSTOMER" class="role-option">
+              <div class="role-content">
+                <mat-icon>business</mat-icon>
+                <div>
+                  <strong>Hire Talent</strong>
+                  <p>I need to hire freelancers</p>
+                </div>
+              </div>
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="full-width submit-btn"
+          [disabled]="loading">
+          <mat-spinner *ngIf="loading" diameter="20" class="button-spinner"></mat-spinner>
+          <span *ngIf="!loading">Create Account</span>
+        </button>
+      </form>
+
+      <!-- Login Link -->
+      <div class="login-link">
+        <p>Already have an account? <a routerLink="/auth/login">Sign in</a></p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

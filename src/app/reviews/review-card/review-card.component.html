@@ -1,0 +1,119 @@
+<mat-card class="review-card">
+  <mat-card-header>
+    <div class="reviewer-info">
+      <img
+        mat-card-avatar
+        [src]="review.reviewerAvatar || 'https://i.pravatar.cc/150?img=default'"
+        [alt]="review.reviewerName"
+        class="avatar"
+      >
+      <div class="reviewer-details">
+        <h3 class="reviewer-name">
+          {{ review.reviewerName }}
+          <mat-icon *ngIf="review.isVerified" class="verified-badge" matTooltip="Verified Review">
+            verified
+          </mat-icon>
+        </h3>
+        <p class="review-date">{{ getTimeAgo() }}</p>
+      </div>
+    </div>
+
+    <div class="card-actions" *ngIf="canEdit">
+      <button mat-icon-button (click)="onEdit()" matTooltip="Edit Review">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button (click)="onDelete()" matTooltip="Delete Review">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- Job Title (if shown) -->
+    <div class="job-title" *ngIf="showJobTitle && review.jobTitle">
+      <mat-icon>work</mat-icon>
+      <span>{{ review.jobTitle }}</span>
+    </div>
+
+    <!-- Star Rating -->
+    <div class="star-rating">
+      <mat-icon
+        *ngFor="let star of getStarArray()"
+        [color]="getRatingColor()"
+        class="star-icon"
+      >
+        {{ getStarIcon(star) }}
+      </mat-icon>
+      <span class="rating-value">{{ review.rating }}.0</span>
+    </div>
+
+    <!-- Review Title -->
+    <h2 class="review-title">{{ review.title }}</h2>
+
+    <!-- Review Comment -->
+    <p class="review-comment">{{ review.comment }}</p>
+
+    <!-- Pros Section -->
+    <div class="pros-section" *ngIf="review.pros && review.pros.length > 0">
+      <div class="section-header">
+        <mat-icon class="positive-icon">thumb_up</mat-icon>
+        <strong>Positives</strong>
+      </div>
+      <mat-chip-set>
+        <mat-chip *ngFor="let pro of review.pros" class="pro-chip">
+          <mat-icon class="chip-icon">check_circle</mat-icon>
+          {{ pro }}
+        </mat-chip>
+      </mat-chip-set>
+    </div>
+
+    <!-- Cons Section -->
+    <div class="cons-section" *ngIf="review.cons && review.cons.length > 0">
+      <div class="section-header">
+        <mat-icon class="negative-icon">info</mat-icon>
+        <strong>Areas for Improvement</strong>
+      </div>
+      <mat-chip-set>
+        <mat-chip *ngFor="let con of review.cons" class="con-chip">
+          <mat-icon class="chip-icon">info_outline</mat-icon>
+          {{ con }}
+        </mat-chip>
+      </mat-chip-set>
+    </div>
+
+    <mat-divider class="divider"></mat-divider>
+
+    <!-- Review Response (if exists) -->
+    <div class="review-response" *ngIf="review.response">
+      <div class="response-header">
+        <mat-icon>reply</mat-icon>
+        <strong>Response from {{ review.response.responderName }}</strong>
+      </div>
+      <p class="response-text">{{ review.response.comment }}</p>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <div class="helpful-section">
+      <span class="helpful-question">Was this review helpful?</span>
+      <button
+        mat-button
+        (click)="markHelpful(true)"
+        [disabled]="userHasVoted"
+        class="helpful-btn"
+      >
+        <mat-icon>thumb_up</mat-icon>
+        Yes ({{ review.helpfulCount }})
+      </button>
+      <button
+        mat-button
+        (click)="markHelpful(false)"
+        [disabled]="userHasVoted"
+        class="helpful-btn"
+      >
+        <mat-icon>thumb_down</mat-icon>
+        No ({{ review.notHelpfulCount }})
+      </button>
+    </div>
+  </mat-card-actions>
+</mat-card>
