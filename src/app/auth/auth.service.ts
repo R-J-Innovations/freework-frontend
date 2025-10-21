@@ -264,7 +264,15 @@ export class AuthService {
    */
   private getStoredUser(): User | null {
     const userStr = localStorage.getItem('freework_user');
-    return userStr ? JSON.parse(userStr) : null;
+    if (!userStr || userStr === 'undefined') {
+      return null;
+    }
+    try {
+      return JSON.parse(userStr);
+    } catch (error) {
+      console.error('Error parsing stored user:', error);
+      return null;
+    }
   }
 
   /**
