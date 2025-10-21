@@ -9,10 +9,10 @@ import { AuthResponse, LoginRequest, RegisterRequest, User, RefreshTokenRequest,
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:8080/api/auth'; // Update with your backend URL
+  private readonly API_URL = 'http://localhost:8080/auth'; // Update with your backend URL
   private readonly TOKEN_KEY = 'freework_access_token';
   private readonly REFRESH_TOKEN_KEY = 'freework_refresh_token';
-  private useMockData = true; // Toggle to switch between mock and real API
+  private useMockData = false; // Toggle to switch between mock and real API
 
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser$: Observable<User | null>;
