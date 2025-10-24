@@ -105,6 +105,22 @@ export const routes: Routes = [
     loadComponent: () => import('./reviews/reviews-demo/reviews-demo.component').then(m => m.ReviewsDemoComponent)
   },
 
+  // Profile routes
+  {
+    path: 'profile',
+    loadComponent: () => import('./profile/profile-view/profile-view.component').then(m => m.ProfileViewComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'profile/edit',
+    loadComponent: () => import('./profile/profile-edit/profile-edit.component').then(m => m.ProfileEditComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'profile/:userId',
+    loadComponent: () => import('./profile/profile-view/profile-view.component').then(m => m.ProfileViewComponent)
+  },
+
   // Fallback route
   {
     path: '**',

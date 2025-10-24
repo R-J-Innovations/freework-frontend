@@ -59,6 +59,14 @@ mat-sidenav {
   background-color: var(--color-gray-50);
   border-bottom: 1px solid var(--color-border);
 
+  .sidenav-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-accent-600);
+  }
+
   mat-icon {
     font-size: 40px;
     width: 40px;
@@ -213,10 +221,31 @@ mat-nav-list {
     }
   }
 
+  .profile-button {
+    width: 40px;
+    height: 40px;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    line-height: 0 !important;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
   button[mat-icon-button] {
     width: 40px;
     height: 40px;
-    border-radius: var(--radius-md);
+    border-radius: 50%;
     color: var(--color-text-primary);
 
     mat-icon {
@@ -235,20 +264,35 @@ mat-nav-list {
 .user-info {
   padding: var(--spacing-md);
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: var(--spacing-md);
   border-bottom: 1px solid var(--color-border);
   margin-bottom: var(--spacing-xs);
 
-  strong {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-text-primary);
+  .menu-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-accent-600);
+    display: block;
   }
 
-  small {
-    font-size: 12px;
-    color: var(--color-text-tertiary);
+  .user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    strong {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+
+    small {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+    }
   }
 }
 
@@ -312,6 +356,11 @@ mat-nav-list {
 
   .sidenav-user-info {
     padding: var(--spacing-md) var(--spacing-lg);
+
+    .sidenav-avatar {
+      width: 36px;
+      height: 36px;
+    }
 
     mat-icon {
       font-size: 36px;

@@ -9,10 +9,10 @@ import { AuthResponse, LoginRequest, RegisterRequest, User, RefreshTokenRequest,
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:8080/auth'; // Update with your backend URL
+  private readonly API_URL = 'http://localhost:8080/api/auth'; // Update with your backend URL
   private readonly TOKEN_KEY = 'freework_access_token';
   private readonly REFRESH_TOKEN_KEY = 'freework_refresh_token';
-  private useMockData = false; // Toggle to switch between mock and real API
+  private useMockData = true; // Toggle to switch between mock and real API
 
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser$: Observable<User | null>;
@@ -68,11 +68,16 @@ export class AuthService {
    * Login with email and password
    */
   login(credentials: LoginRequest): Observable<AuthResponse> {
+    console.log('🔧 Login called - useMockData:', this.useMockData);
+    console.log('🔧 Credentials:', credentials.email);
+
     // Use mock authentication for testing
     if (this.useMockData) {
+      console.log('✅ Using mock authentication');
       return this.mockLogin(credentials);
     }
 
+    console.log('⚠️ Using real API authentication');
     return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials)
       .pipe(
         tap(response => this.handleAuthResponse(response)),
@@ -93,7 +98,7 @@ export class AuthService {
         const user = this.mockUsers.find(u => u.email === credentials.email);
 
         if (!user) {
-          observer.error({ message: 'Invalid email or password' });
+          observer.error({ error: { message: 'Invalid email or password' } });
           return;
         }
 
@@ -102,7 +107,7 @@ export class AuthService {
                             credentials.password.toLowerCase() === user.firstName.toLowerCase();
 
         if (!validPassword) {
-          observer.error({ message: 'Invalid email or password' });
+          observer.error({ error: { message: 'Invalid email or password' } });
           return;
         }
 
@@ -264,7 +269,15 @@ export class AuthService {
    */
   private getStoredUser(): User | null {
     const userStr = localStorage.getItem('freework_user');
-    return userStr ? JSON.parse(userStr) : null;
+    if (!userStr || userStr === 'undefined') {
+      return null;
+    }
+    try {
+      return JSON.parse(userStr);
+    } catch (error) {
+      console.error('Error parsing stored user:', error);
+      return null;
+    }
   }
 
   /**
