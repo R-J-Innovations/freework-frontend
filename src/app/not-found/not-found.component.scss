@@ -60,13 +60,13 @@
   font-weight: 400;
 }
 
-.permission_denied h3 span {
+.permission_denied h3 .strike {
   position: relative;
   width: 65px;
   display: inline-block;
 }
 
-.permission_denied h3 span:after {
+.permission_denied h3 .strike:after {
   content: "";
   border-bottom: 3px solid #ffbb39;
   position: absolute;
@@ -162,4 +162,8 @@
   100% {
     transform: translateY(-3px);
   }
+}
+
+.denied__freework {
+  font-size: 1.4em;
 }
