@@ -120,10 +120,12 @@ export const routes: Routes = [
     path: 'profile/:userId',
     loadComponent: () => import('./profile/profile-view/profile-view.component').then(m => m.ProfileViewComponent)
   },
-
-  // Fallback route
+  {
+    path: '404',
+    loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent)
+  },
   {
     path: '**',
-    redirectTo: '/jobs'
+    redirectTo: '/404'
   }
 ];
