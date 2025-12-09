@@ -1,7 +1,33 @@
-import { Routes } from '@angular/router';
+import { Routes, UrlSegment, UrlMatchResult } from '@angular/router';
 import { authGuard, guestGuard, roleGuard } from './auth/auth.guard';
 
+// Matches any URL that does not start with '404'
+export function redirectAllExcept404(url: UrlSegment[]): UrlMatchResult | null {
+  if (url.length === 0) {
+    // root path '' should redirect to /404
+    return { consumed: [] };
+  }
+  if (url[0].path !== '404') {
+    // consume all segments to prevent other routes from matching
+    return { consumed: url };
+  }
+  return null; // let '/404' route match normally
+}
+
 export const routes: Routes = [
+  // Redirect everything except '/404' to '/404'
+  {
+    matcher: redirectAllExcept404,
+    redirectTo: '/404',
+    pathMatch: 'full'
+  },
+
+  // 404 route
+  {
+    path: '404',
+    loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent)
+  },
+
   // Public routes
   {
     path: '',
@@ -119,10 +145,6 @@ export const routes: Routes = [
   {
     path: 'profile/:userId',
     loadComponent: () => import('./profile/profile-view/profile-view.component').then(m => m.ProfileViewComponent)
-  },
-  {
-    path: '404',
-    loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent)
   },
   {
     path: '**',
