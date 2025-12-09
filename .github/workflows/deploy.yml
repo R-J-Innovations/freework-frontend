@@ -35,12 +35,12 @@ jobs:
         run: npm run build
 
       - name: Add SPA fallback (copy index.html to 404.html)
-        run: cp dist/angular-app/index.html dist/angular-app/404.html
+        run: cp dist/angular-app/browser/index.html dist/angular-app/browser/404.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/angular-app
+          path: dist/angular-app/browser
 
   deploy:
     runs-on: ubuntu-latest
