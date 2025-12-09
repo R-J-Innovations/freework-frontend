@@ -5,7 +5,7 @@ export const routes: Routes = [
   // Public routes
   {
     path: '',
-    redirectTo: '/jobs',
+    redirectTo: '/404',
     pathMatch: 'full'
   },
   {
