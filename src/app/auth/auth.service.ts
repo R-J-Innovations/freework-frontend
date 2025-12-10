@@ -78,11 +78,30 @@ export class AuthService {
     }
 
     console.log('⚠️ Using real API authentication');
-    return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials)
+    return this.http.post<any>(`${this.API_URL}/login`, credentials)
       .pipe(
-        tap(response => this.handleAuthResponse(response)),
+        tap(response => {
+          console.log('📥 Raw API Response received:', response);
+          console.log('📥 Response type:', typeof response);
+          console.log('📥 Response keys:', Object.keys(response));
+          console.log('📥 Access token:', response.accessToken || response.token || 'MISSING');
+          console.log('📥 Refresh token:', response.refreshToken || 'MISSING');
+          console.log('📥 User data:', response.user || response.userDetails || 'MISSING');
+
+          // Handle different possible API response formats
+          const authResponse: AuthResponse = {
+            accessToken: response.accessToken || response.token,
+            refreshToken: response.refreshToken || response.refresh_token || '',
+            tokenType: response.tokenType || 'Bearer',
+            expiresIn: response.expiresIn || response.expires_in || 3600,
+            user: response.user || response.userDetails || this.extractUserFromToken(response.accessToken || response.token)
+          };
+
+          console.log('📥 Normalized auth response:', authResponse);
+          this.handleAuthResponse(authResponse);
+        }),
         catchError(error => {
-          console.error('Login error:', error);
+          console.error('❌ Login error:', error);
           return throwError(() => error);
         })
       );
@@ -284,10 +303,18 @@ export class AuthService {
    * Handle authentication response
    */
   private handleAuthResponse(response: AuthResponse): void {
+    console.log('🔐 handleAuthResponse called with:', response);
+    console.log('🔐 User from response:', response.user);
+    console.log('🔐 Access token:', response.accessToken ? 'Present' : 'Missing');
+
     this.setTokens(response.accessToken, response.refreshToken);
     this.currentUserSubject.next(response.user);
     this.storeUser(response.user);
     this.startRefreshTokenTimer();
+
+    console.log('✅ Auth response handled. Current user:', this.currentUserValue);
+    console.log('✅ Is authenticated:', this.isAuthenticated);
+    console.log('✅ Token in storage:', this.getAccessToken() ? 'Present' : 'Missing');
   }
 
   /**
@@ -299,6 +326,35 @@ export class AuthService {
       return JSON.parse(atob(payload));
     } catch (error) {
       console.error('Error decoding token:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Extract user data from JWT token if user object not provided in response
+   */
+  private extractUserFromToken(token: string): User | null {
+    try {
+      const decoded = this.decodeToken(token);
+      if (!decoded) return null;
+
+      console.log('🔍 Decoded token payload:', decoded);
+
+      // Build user object from token claims
+      const user: User = {
+        id: decoded.sub || decoded.userId || decoded.id || '',
+        email: decoded.email || '',
+        firstName: decoded.firstName || decoded.given_name || '',
+        lastName: decoded.lastName || decoded.family_name || '',
+        role: (decoded.role || decoded.authorities?.[0] || 'FREELANCER') as 'CUSTOMER' | 'FREELANCER' | 'ADMIN',
+        profilePicture: decoded.profilePicture || decoded.picture,
+        createdAt: decoded.iat ? new Date(decoded.iat * 1000).toISOString() : new Date().toISOString()
+      };
+
+      console.log('👤 Extracted user from token:', user);
+      return user;
+    } catch (error) {
+      console.error('Error extracting user from token:', error);
       return null;
     }
   }

@@ -12,15 +12,15 @@
       <mat-divider></mat-divider>
 
       <!-- User Info if Logged In -->
-      <div class="sidenav-user-info" *ngIf="authService.isLoggedIn()">
+      <div class="sidenav-user-info" *ngIf="currentUser$ | async as user">
         <mat-icon>account_circle</mat-icon>
         <div>
-          <strong>{{ authService.getCurrentUser()?.firstName }} {{ authService.getCurrentUser()?.lastName }}</strong>
-          <small>{{ authService.getCurrentUser()?.email }}</small>
+          <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+          <small>{{ user.email }}</small>
         </div>
       </div>
 
-      <mat-divider *ngIf="authService.isLoggedIn()"></mat-divider>
+      <mat-divider *ngIf="currentUser$ | async"></mat-divider>
 
       <!-- Navigation Links -->
       <a mat-list-item routerLink="/jobs" (click)="closeSidenav()">
@@ -29,14 +29,14 @@
       </a>
 
       <!-- Authenticated Links -->
-      <ng-container *ngIf="authService.isLoggedIn()">
+      <ng-container *ngIf="currentUser$ | async as user">
         <a mat-list-item routerLink="/messages" (click)="closeSidenav()">
           <mat-icon matListItemIcon>message</mat-icon>
           <span matListItemTitle>Messages</span>
         </a>
 
         <!-- Customer Only -->
-        <ng-container *ngIf="authService.getCurrentUser()?.role === 'CUSTOMER'">
+        <ng-container *ngIf="user.role === 'CUSTOMER'">
           <a mat-list-item routerLink="/jobs/new" (click)="closeSidenav()">
             <mat-icon matListItemIcon>add</mat-icon>
             <span matListItemTitle>Post Job</span>
@@ -49,7 +49,7 @@
         </ng-container>
 
         <!-- Freelancer Only -->
-        <ng-container *ngIf="authService.getCurrentUser()?.role === 'FREELANCER'">
+        <ng-container *ngIf="user.role === 'FREELANCER'">
           <a mat-list-item routerLink="/my-active-jobs" (click)="closeSidenav()">
             <mat-icon matListItemIcon>work</mat-icon>
             <span matListItemTitle>My Active Jobs</span>
@@ -87,7 +87,7 @@
       </ng-container>
 
       <!-- Not Logged In -->
-      <ng-container *ngIf="!authService.isLoggedIn()">
+      <ng-container *ngIf="!(currentUser$ | async)">
         <a mat-list-item routerLink="/login" (click)="closeSidenav()">
           <mat-icon matListItemIcon>login</mat-icon>
           <span matListItemTitle>Login</span>
@@ -116,10 +116,17 @@
           <!-- Spacer to push user menu to the right -->
           <span class="spacer"></span>
 
+          <!-- DEBUG INFO (Remove after testing) -->
+          <div style="margin-right: 10px; font-size: 10px; color: #fff;">
+            <div>Auth: {{ authService.isAuthenticated ? 'YES' : 'NO' }}</div>
+            <div>User: {{ (currentUser$ | async)?.email || 'NONE' }}</div>
+            <div>Token: {{ authService.getAccessToken() ? 'YES' : 'NO' }}</div>
+          </div>
+
           <!-- User Menu -->
           <div class="user-menu">
             <!-- Not Logged In -->
-            <ng-container *ngIf="!authService.isLoggedIn()">
+            <ng-container *ngIf="!(currentUser$ | async)">
               <a mat-button routerLink="/login" class="login-button">
                 <mat-icon>login</mat-icon>
                 Login
@@ -127,24 +134,24 @@
             </ng-container>
 
             <!-- Logged In -->
-            <ng-container *ngIf="authService.isLoggedIn()">
+            <ng-container *ngIf="currentUser$ | async as user">
               <button mat-icon-button [matMenuTriggerFor]="userMenu" class="profile-button">
                 <img
-                  [src]="authService.getCurrentUser()?.profilePicture || 'https://via.placeholder.com/40'"
-                  [alt]="authService.getCurrentUser()?.firstName"
+                  [src]="user.profilePicture || 'https://via.placeholder.com/40'"
+                  [alt]="user.firstName"
                   class="profile-avatar"
                 />
               </button>
               <mat-menu #userMenu="matMenu">
                 <div class="user-info">
                   <img
-                    [src]="authService.getCurrentUser()?.profilePicture || 'https://via.placeholder.com/60'"
-                    [alt]="authService.getCurrentUser()?.firstName"
+                    [src]="user.profilePicture || 'https://via.placeholder.com/60'"
+                    [alt]="user.firstName"
                     class="menu-avatar"
                   />
                   <div class="user-details">
-                    <strong>{{ authService.getCurrentUser()?.firstName }} {{ authService.getCurrentUser()?.lastName }}</strong>
-                    <small>{{ authService.getCurrentUser()?.email }}</small>
+                    <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+                    <small>{{ user.email }}</small>
                   </div>
                 </div>
                 <mat-divider></mat-divider>

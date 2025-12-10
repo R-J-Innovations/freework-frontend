@@ -109,7 +109,7 @@ export class JobFormComponent implements OnInit {
           location: job.location,
           locationType: job.locationType
         });
-        this.selectedSkills = [...job.skills];
+        this.selectedSkills = job.skills ? [...job.skills] : [];
         this.loading = false;
       },
       error: (error) => {

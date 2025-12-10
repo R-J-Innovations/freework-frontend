@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,7 +24,6 @@ import { ReviewType } from '../../reviews/models';
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -104,10 +103,10 @@ export class JobDetailComponent implements OnInit {
       jobId: this.job.id,
       revieweeId: reviewType === ReviewType.FREELANCER_REVIEW
         ? 'freelancer1' // In real app, get from job assignment
-        : this.job.customerId,
+        : (this.job.customerId || ''),
       revieweeName: reviewType === ReviewType.FREELANCER_REVIEW
         ? 'Assigned Freelancer' // In real app, get from job assignment
-        : this.job.customerName,
+        : (this.job.customerName || 'Customer'),
       reviewType: reviewType,
       jobTitle: this.job.title
     };
@@ -184,9 +183,9 @@ export class JobDetailComponent implements OnInit {
   }
 
   formatBudget(job: Job): string {
-    const amount = new Intl.NumberFormat('en-US', {
+    const amount = new Intl.NumberFormat('en-ZA', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'ZAR',
       minimumFractionDigits: 0
     }).format(job.budget);
 
@@ -214,12 +213,12 @@ export class JobDetailComponent implements OnInit {
 
   getStatusColor(status: string): string {
     const colors: { [key: string]: string } = {
-      'OPEN': 'primary',
-      'IN_PROGRESS': 'accent',
-      'COMPLETED': 'warn',
-      'CANCELLED': ''
+      'OPEN': 'primary',      // Blue - for open jobs
+      'IN_PROGRESS': 'accent', // Green/Teal - for active work
+      'COMPLETED': 'warn',     // Orange/Amber - for finished jobs
+      'CANCELLED': 'warn'      // Red - for cancelled jobs (changed from empty string)
     };
-    return colors[status] || '';
+    return colors[status] || 'primary';
   }
 
   private showSuccess(message: string): void {

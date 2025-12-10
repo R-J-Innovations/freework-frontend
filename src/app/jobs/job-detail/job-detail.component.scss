@@ -81,6 +81,42 @@
       display: flex;
       gap: var(--spacing-sm);
       flex-wrap: wrap;
+
+      // Make status chips more vibrant and visible
+      mat-chip {
+        font-size: 11px !important;
+        height: 26px !important;
+        padding: 0 12px !important;
+        font-weight: 600 !important;
+        border: none !important;
+        border-radius: var(--radius-sm) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+      }
+
+      // OPEN status - Vibrant Blue
+      mat-chip.mat-primary,
+      mat-chip[color="primary"] {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+        color: white !important;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4) !important;
+      }
+
+      // IN_PROGRESS status - Vibrant Green
+      mat-chip.mat-accent,
+      mat-chip[color="accent"] {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+        color: white !important;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4) !important;
+      }
+
+      // COMPLETED/CANCELLED status - Vibrant Orange/Red
+      mat-chip.mat-warn,
+      mat-chip[color="warn"] {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+        color: white !important;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4) !important;
+      }
     }
   }
 

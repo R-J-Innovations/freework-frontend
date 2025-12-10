@@ -78,7 +78,7 @@ export class MyActiveJobsComponent implements OnInit {
       next: (response) => {
         // Filter for jobs that are in progress or have accepted applications
         this.customerJobs = response.content.filter(
-          job => job.status === 'IN_PROGRESS' || job.applicationsCount > 0
+          job => job.status === 'IN_PROGRESS' || (job.applicationsCount && job.applicationsCount > 0)
         );
         this.loading = false;
       },
@@ -238,8 +238,8 @@ export class MyActiveJobsComponent implements OnInit {
   writeReview(activeJob: ActiveJob): void {
     const dialogData: ReviewDialogData = {
       jobId: activeJob.job.id,
-      revieweeId: activeJob.job.customerId,
-      revieweeName: activeJob.job.customerName,
+      revieweeId: activeJob.job.customerId || '',
+      revieweeName: activeJob.job.customerName || 'Customer',
       reviewType: ReviewType.CUSTOMER_REVIEW,
       jobTitle: activeJob.job.title
     };
