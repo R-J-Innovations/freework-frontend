@@ -68,11 +68,16 @@ export class AuthService {
    * Login with email and password
    */
   login(credentials: LoginRequest): Observable<AuthResponse> {
+    console.log('🔧 Login called - useMockData:', this.useMockData);
+    console.log('🔧 Credentials:', credentials.email);
+
     // Use mock authentication for testing
     if (this.useMockData) {
+      console.log('✅ Using mock authentication');
       return this.mockLogin(credentials);
     }
 
+    console.log('⚠️ Using real API authentication');
     return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials)
       .pipe(
         tap(response => this.handleAuthResponse(response)),
@@ -93,7 +98,7 @@ export class AuthService {
         const user = this.mockUsers.find(u => u.email === credentials.email);
 
         if (!user) {
-          observer.error({ message: 'Invalid email or password' });
+          observer.error({ error: { message: 'Invalid email or password' } });
           return;
         }
 
@@ -102,7 +107,7 @@ export class AuthService {
                             credentials.password.toLowerCase() === user.firstName.toLowerCase();
 
         if (!validPassword) {
-          observer.error({ message: 'Invalid email or password' });
+          observer.error({ error: { message: 'Invalid email or password' } });
           return;
         }
 

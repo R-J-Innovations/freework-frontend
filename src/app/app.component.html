@@ -128,13 +128,24 @@
 
             <!-- Logged In -->
             <ng-container *ngIf="authService.isLoggedIn()">
-              <button mat-icon-button [matMenuTriggerFor]="userMenu">
-                <mat-icon>account_circle</mat-icon>
+              <button mat-icon-button [matMenuTriggerFor]="userMenu" class="profile-button">
+                <img
+                  [src]="authService.getCurrentUser()?.profilePicture || 'https://via.placeholder.com/40'"
+                  [alt]="authService.getCurrentUser()?.firstName"
+                  class="profile-avatar"
+                />
               </button>
               <mat-menu #userMenu="matMenu">
                 <div class="user-info">
-                  <strong>{{ authService.getCurrentUser()?.firstName }} {{ authService.getCurrentUser()?.lastName }}</strong>
-                  <small>{{ authService.getCurrentUser()?.email }}</small>
+                  <img
+                    [src]="authService.getCurrentUser()?.profilePicture || 'https://via.placeholder.com/60'"
+                    [alt]="authService.getCurrentUser()?.firstName"
+                    class="menu-avatar"
+                  />
+                  <div class="user-details">
+                    <strong>{{ authService.getCurrentUser()?.firstName }} {{ authService.getCurrentUser()?.lastName }}</strong>
+                    <small>{{ authService.getCurrentUser()?.email }}</small>
+                  </div>
                 </div>
                 <mat-divider></mat-divider>
                 <button mat-menu-item routerLink="/profile">

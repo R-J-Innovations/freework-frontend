@@ -1,0 +1,237 @@
+<div class="profile-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading profile...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-container">
+    <div class="error-message">
+      <i class="fas fa-exclamation-circle"></i>
+      <p>{{ error }}</p>
+    </div>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="profile && !isLoading" class="profile-content">
+    <!-- Header Section -->
+    <div class="profile-header">
+      <div class="header-background"></div>
+      <div class="header-content">
+        <div class="profile-picture-wrapper">
+          <img
+            [src]="profile.profilePicture || 'https://via.placeholder.com/150'"
+            [alt]="profile.firstName + ' ' + profile.lastName"
+            class="profile-picture"
+          />
+          <div class="role-badge" [class.freelancer]="isFreelancer(profile)" [class.customer]="isCustomer(profile)">
+            {{ profile.role }}
+          </div>
+        </div>
+
+        <div class="profile-info">
+          <div class="name-section">
+            <h1>{{ profile.firstName }} {{ profile.lastName }}</h1>
+            <p class="title" *ngIf="isFreelancer(profile) && profile.title">{{ profile.title }}</p>
+            <p class="company" *ngIf="isCustomer(profile) && profile.company">{{ profile.company }}</p>
+          </div>
+
+          <div class="meta-info">
+            <span *ngIf="profile.location" class="info-item">
+              <i class="fas fa-map-marker-alt"></i> {{ profile.location }}
+            </span>
+            <span *ngIf="profile.email" class="info-item">
+              <i class="fas fa-envelope"></i> {{ profile.email }}
+            </span>
+            <span *ngIf="profile.phone" class="info-item">
+              <i class="fas fa-phone"></i> {{ profile.phone }}
+            </span>
+          </div>
+
+          <div class="rating-section" *ngIf="profile.rating">
+            <div class="rating">
+              <i class="fas fa-star"></i>
+              <span class="rating-value">{{ profile.rating }}</span>
+              <span class="rating-count">({{ profile.totalReviews }} reviews)</span>
+            </div>
+          </div>
+
+          <button *ngIf="isOwnProfile" class="btn btn-primary" (click)="editProfile()">
+            <i class="fas fa-edit"></i> Edit Profile
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="profile-body">
+      <div class="main-column">
+        <!-- Bio Section -->
+        <section class="profile-section" *ngIf="profile.bio">
+          <h2><i class="fas fa-user"></i> About</h2>
+          <p class="bio">{{ profile.bio }}</p>
+        </section>
+
+        <!-- Freelancer Specific Sections -->
+        <ng-container *ngIf="isFreelancer(profile)">
+          <!-- Skills Section -->
+          <section class="profile-section" *ngIf="profile.skills && profile.skills.length > 0">
+            <h2><i class="fas fa-code"></i> Skills</h2>
+            <div class="skills-list">
+              <span *ngFor="let skill of profile.skills" class="skill-badge">{{ skill }}</span>
+            </div>
+          </section>
+
+          <!-- Portfolio Section -->
+          <section class="profile-section" *ngIf="profile.portfolio && profile.portfolio.length > 0">
+            <h2><i class="fas fa-briefcase"></i> Portfolio</h2>
+            <div class="portfolio-grid">
+              <div *ngFor="let item of profile.portfolio" class="portfolio-item">
+                <img [src]="item.imageUrl || 'https://via.placeholder.com/400x300'" [alt]="item.title" />
+                <div class="portfolio-info">
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ item.description }}</p>
+                  <div class="technologies" *ngIf="item.technologies && item.technologies.length > 0">
+                    <span *ngFor="let tech of item.technologies" class="tech-badge">{{ tech }}</span>
+                  </div>
+                  <a *ngIf="item.projectUrl" [href]="item.projectUrl" target="_blank" class="view-project">
+                    View Project <i class="fas fa-external-link-alt"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Experience Section -->
+          <section class="profile-section" *ngIf="profile.experience">
+            <h2><i class="fas fa-history"></i> Experience</h2>
+            <p>{{ profile.experience }}</p>
+          </section>
+
+          <!-- Education Section -->
+          <section class="profile-section" *ngIf="profile.education">
+            <h2><i class="fas fa-graduation-cap"></i> Education</h2>
+            <p>{{ profile.education }}</p>
+          </section>
+
+          <!-- Certifications Section -->
+          <section class="profile-section" *ngIf="profile.certifications && profile.certifications.length > 0">
+            <h2><i class="fas fa-certificate"></i> Certifications</h2>
+            <div class="certifications-list">
+              <div *ngFor="let cert of profile.certifications" class="certification-item">
+                <h3>{{ cert.name }}</h3>
+                <p class="issuer">{{ cert.issuer }}</p>
+                <p class="date">Issued: {{ cert.issueDate | date: 'MMM yyyy' }}</p>
+                <a *ngIf="cert.credentialUrl" [href]="cert.credentialUrl" target="_blank" class="credential-link">
+                  View Credential <i class="fas fa-external-link-alt"></i>
+                </a>
+              </div>
+            </div>
+          </section>
+        </ng-container>
+
+        <!-- Customer Specific Sections -->
+        <ng-container *ngIf="isCustomer(profile)">
+          <section class="profile-section stats-section">
+            <h2><i class="fas fa-chart-bar"></i> Statistics</h2>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-value">{{ profile.totalJobsPosted || 0 }}</div>
+                <div class="stat-label">Jobs Posted</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">{{ profile.rating || 'N/A' }}</div>
+                <div class="stat-label">Rating</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">{{ profile.totalReviews || 0 }}</div>
+                <div class="stat-label">Reviews</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="profile-section" *ngIf="profile.industry">
+            <h2><i class="fas fa-building"></i> Company Information</h2>
+            <div class="company-info">
+              <p><strong>Industry:</strong> {{ profile.industry }}</p>
+              <p *ngIf="profile.companySize"><strong>Company Size:</strong> {{ profile.companySize }}</p>
+              <p *ngIf="profile.website">
+                <strong>Website:</strong>
+                <a [href]="profile.website" target="_blank">{{ profile.website }}</a>
+              </p>
+              <p *ngIf="profile.verifiedPayment" class="verified">
+                <i class="fas fa-check-circle"></i> Verified Payment Method
+              </p>
+            </div>
+          </section>
+        </ng-container>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <!-- Quick Stats for Freelancers -->
+        <div class="sidebar-section" *ngIf="isFreelancer(profile)">
+          <h3>Quick Stats</h3>
+          <div class="quick-stats">
+            <div class="stat">
+              <span class="stat-label">Hourly Rate</span>
+              <span class="stat-value">${{ profile.hourlyRate || 'N/A' }}/hr</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Availability</span>
+              <span class="stat-value">{{ getAvailabilityLabel(profile.availability) }}</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Completed Jobs</span>
+              <span class="stat-value">{{ profile.completedJobs || 0 }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Languages -->
+        <div class="sidebar-section" *ngIf="isFreelancer(profile) && profile.languages && profile.languages.length > 0">
+          <h3>Languages</h3>
+          <div class="languages-list">
+            <div *ngFor="let lang of profile.languages" class="language-item">
+              <span class="language-name">{{ lang.name }}</span>
+              <span class="language-level">{{ getProficiencyLabel(lang.proficiency) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Links -->
+        <div class="sidebar-section" *ngIf="profile.socialLinks">
+          <h3>Connect</h3>
+          <div class="social-links">
+            <a *ngIf="profile.socialLinks.linkedin" [href]="profile.socialLinks.linkedin" target="_blank" class="social-link">
+              <i class="fab fa-linkedin"></i> LinkedIn
+            </a>
+            <a *ngIf="profile.socialLinks.github" [href]="profile.socialLinks.github" target="_blank" class="social-link">
+              <i class="fab fa-github"></i> GitHub
+            </a>
+            <a *ngIf="profile.socialLinks.twitter" [href]="profile.socialLinks.twitter" target="_blank" class="social-link">
+              <i class="fab fa-twitter"></i> Twitter
+            </a>
+            <a *ngIf="profile.socialLinks.website" [href]="profile.socialLinks.website" target="_blank" class="social-link">
+              <i class="fas fa-globe"></i> Website
+            </a>
+            <a *ngIf="profile.socialLinks.behance" [href]="profile.socialLinks.behance" target="_blank" class="social-link">
+              <i class="fab fa-behance"></i> Behance
+            </a>
+            <a *ngIf="profile.socialLinks.dribbble" [href]="profile.socialLinks.dribbble" target="_blank" class="social-link">
+              <i class="fab fa-dribbble"></i> Dribbble
+            </a>
+          </div>
+        </div>
+
+        <!-- Member Since -->
+        <div class="sidebar-section">
+          <h3>Member Since</h3>
+          <p>{{ profile.createdAt | date: 'MMMM yyyy' }}</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
